@@ -4,6 +4,6 @@ require "rubygems"
 libdir = File.join( __dir__, "..", "lib")
 $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
 
-require "balboa_archiver"
+require "parkive"
 
-Parkive::CLI.start
+Parkive::CLI.start(ARGV)
