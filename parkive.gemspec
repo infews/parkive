@@ -10,9 +10,9 @@ Gem::Specification.new do |spec|
 
   spec.summary = "A util for listing, renaming, and moving personal archivables"
   # spec.description = "TODO: Write a longer description or delete this line."
-  spec.homepage = "https://github.com/dwfrank/parkive"
+  spec.homepage = "https://github.com/infews/parkive"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.0.0"
+  spec.required_ruby_version = ">= 3.3.0"
 
   spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
