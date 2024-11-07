@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "spec_helper"
 module Parkive
   RSpec.describe "Parkive::CLI#make_directories" do
@@ -11,7 +12,7 @@ module Parkive
     let(:temp_dir) { @temp_dir }
     let(:this_year) { Time.now.year.to_s }
 
-    context "when no destination is provided" do
+    context "and no destination is provided" do
       it "fails with a usage error" do
         expect do
           CLI.new.invoke(:make_directories)
@@ -19,7 +20,7 @@ module Parkive
       end
     end
 
-    context "when the destination does not exist" do
+    context "and the destination does not exist" do
       it "does not create a directory" do
         expect do
           CLI.new.invoke(:make_directories, ["#{temp_dir}/foo"])
@@ -34,7 +35,7 @@ module Parkive
       end
     end
 
-    context "when the destination root exists" do
+    context "and the destination exists" do
       context "when the year is not specified" do
         it "creates the expected directories" do
           CLI.new.invoke(:make_directories, [temp_dir])
@@ -45,45 +46,45 @@ module Parkive
           dirs = Dir.glob(File.join(root, "*")).sort
 
           expect(dirs).to eq([File.join(root, "01.Jan"),
-                              File.join(root, "02.Feb"),
-                              File.join(root, "03.Mar"),
-                              File.join(root, "04.Apr"),
-                              File.join(root, "05.May"),
-                              File.join(root, "06.Jun"),
-                              File.join(root, "07.Jul"),
-                              File.join(root, "08.Aug"),
-                              File.join(root, "09.Sep"),
-                              File.join(root, "10.Oct"),
-                              File.join(root, "11.Nov"),
-                              File.join(root, "12.Dec"),
-                              File.join(root, "#{this_year}.Media"),
-                              File.join(root, "#{this_year}.Tax")])
+            File.join(root, "02.Feb"),
+            File.join(root, "03.Mar"),
+            File.join(root, "04.Apr"),
+            File.join(root, "05.May"),
+            File.join(root, "06.Jun"),
+            File.join(root, "07.Jul"),
+            File.join(root, "08.Aug"),
+            File.join(root, "09.Sep"),
+            File.join(root, "10.Oct"),
+            File.join(root, "11.Nov"),
+            File.join(root, "12.Dec"),
+            File.join(root, "#{this_year}.Media"),
+            File.join(root, "#{this_year}.Tax")])
         end
+      end
 
-        context "when the year is specified" do
-          it "creates the expected directories" do
-            CLI.new.invoke(:make_directories, [temp_dir], { year: "2002" })
+      context "when the year is specified" do
+        it "creates the expected directories" do
+          CLI.new.invoke(:make_directories, [temp_dir], {year: "2002"})
 
-            root = File.join(temp_dir, "2002")
-            expect(Dir.exist?(root)).to eq(true)
+          root = File.join(temp_dir, "2002")
+          expect(Dir.exist?(root)).to eq(true)
 
-            dirs = Dir.glob(File.join(root, "*")).sort
+          dirs = Dir.glob(File.join(root, "*")).sort
 
-            expect(dirs).to eq([File.join(root, "01.Jan"),
-                                File.join(root, "02.Feb"),
-                                File.join(root, "03.Mar"),
-                                File.join(root, "04.Apr"),
-                                File.join(root, "05.May"),
-                                File.join(root, "06.Jun"),
-                                File.join(root, "07.Jul"),
-                                File.join(root, "08.Aug"),
-                                File.join(root, "09.Sep"),
-                                File.join(root, "10.Oct"),
-                                File.join(root, "11.Nov"),
-                                File.join(root, "12.Dec"),
-                                File.join(root, "2002.Media"),
-                                File.join(root, "2002.Tax")])
-          end
+          expect(dirs).to eq([File.join(root, "01.Jan"),
+            File.join(root, "02.Feb"),
+            File.join(root, "03.Mar"),
+            File.join(root, "04.Apr"),
+            File.join(root, "05.May"),
+            File.join(root, "06.Jun"),
+            File.join(root, "07.Jul"),
+            File.join(root, "08.Aug"),
+            File.join(root, "09.Sep"),
+            File.join(root, "10.Oct"),
+            File.join(root, "11.Nov"),
+            File.join(root, "12.Dec"),
+            File.join(root, "2002.Media"),
+            File.join(root, "2002.Tax")])
         end
       end
     end
@@ -93,8 +94,8 @@ module Parkive
         expect {
           CLI.new.invoke(:help, ["make_directories"])
         }.to output(
-               a_string_including("[--year=YEAR]")
-             ).to_stdout
+          a_string_including("[--year=YEAR]")
+        ).to_stdout
       end
     end
   end
