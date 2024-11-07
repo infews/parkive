@@ -6,7 +6,7 @@ module Parkive
       expect {
         CLI.new.invoke(:help)
       }.to output(
-        a_string_including("make_directories DST YEAR")
+        a_string_including("make_directories DST")
       ).to_stdout
     end
   end

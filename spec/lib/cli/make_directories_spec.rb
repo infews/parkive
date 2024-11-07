@@ -37,7 +37,7 @@ module Parkive
     context "when the destination root exists" do
       context "when the year is not specified" do
         it "creates the expected directories" do
-          CLI.new.invoke(:make_directories, ["#{temp_dir}"])
+          CLI.new.invoke(:make_directories, [temp_dir])
 
           root = File.join(temp_dir, this_year)
           expect(Dir.exist?(root)).to eq(true)
@@ -62,7 +62,7 @@ module Parkive
 
         context "when the year is specified" do
           it "creates the expected directories" do
-            CLI.new.invoke(:make_directories, ["#{temp_dir}"], { year: "2002" })
+            CLI.new.invoke(:make_directories, [temp_dir], { year: "2002" })
 
             root = File.join(temp_dir, "2002")
             expect(Dir.exist?(root)).to eq(true)
@@ -85,6 +85,16 @@ module Parkive
                                 File.join(root, "2002.Tax")])
           end
         end
+      end
+    end
+
+    context "help" do
+      it "includes the options" do
+        expect {
+          CLI.new.invoke(:help, ["make_directories"])
+        }.to output(
+               a_string_including("[--year=YEAR]")
+             ).to_stdout
       end
     end
   end

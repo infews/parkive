@@ -5,7 +5,7 @@ module Parkive
     # include Thor::Actions
 
     desc "make_directories DST", "Creates archive sub-directories in DST for the given year"
-    method_option :year, default: Time.now.year.to_s, desc: "Year folder to create; default is this year"
+    method_option :year, default: Time.now.year.to_s, desc: "Year folder to create"
 
     def make_directories(destination)
       raise NoDestinationDirectoryError.new(destination) unless Dir.exist?(destination)
