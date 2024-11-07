@@ -15,5 +15,8 @@ module Parkive
 
       ["01.Jan", "02.Feb", "03.Mar", "04.Apr", "05.May", "06.Jun", "07.Jul", "08.Aug", "09.Sep", "10.Oct", "11.Nov", "12.Dec", "#{options[:year]}.Media", "#{options[:year]}.Tax"].each { |dir| Dir.mkdir(File.join(destination, options[:year], dir)) }
     end
+
+    # TODO: not sure how to test this
+    map :mkdir => :make_directories
   end
 end
