@@ -9,11 +9,14 @@ module Parkive
       end
 
       def build
-        dirs = MONTH_DIRNAMES.values
-        dirs << "#{@year}.Media"
-        dirs << "#{@year}.Tax"
-
         dirs.collect { |dir| "mkdir -p #{File.join(@root_path, dir)}" }
+      end
+
+      def dirs
+        d = MONTH_DIRNAMES.values
+        d << "#{@year}.Media"
+        d << "#{@year}.Tax"
+        d.flatten
       end
     end
   end
