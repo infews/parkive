@@ -10,13 +10,19 @@ module Parkive::Commands
     let(:this_year) { Time.now.year.to_s }
 
     it "builds commands" do
-      commands = GumMakeDirectories.new(temp_dir, this_year).commands
+      cmd = GumMakeDirectories.new(temp_dir, this_year)
+      commands = cmd.commands
 
       expect(commands.length).to eq(2)
-      expect(commands.first).to include("gum style")
-      expect(commands.first).to include("Creating archive directories in #{File.join(temp_dir, this_year)}")
-      expect(commands[1]).to include("echo \"#{File.join(temp_dir, this_year, "01.Jan")} ")
-      expect(commands[1]).to include("| xargs mkdir -p")
+      expect(commands.first).to match(/^gum style/)
+      expect(commands.first).to match("Creating archive directories")
+
+      expect(commands.last).to match(/^echo /)
+      expect(commands.last).to match(/| xargs mkdir -p$/)
+
+      cmd.dirs.each do |path|
+        expect(commands.last).to include(path)
+      end
     end
   end
 end

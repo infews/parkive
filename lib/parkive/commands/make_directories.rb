@@ -10,7 +10,8 @@ module Parkive
       end
 
       def commands
-        @commands << "echo \"#{dirs.join(" ")}\" | xargs mkdir -p"
+        @commands << "puts #{message}"
+        @commands << mkdir_command
       end
 
       def dirs
@@ -19,6 +20,14 @@ module Parkive
         d << "#{@year}.Tax"
         d.flatten
           .collect { |dir| File.join(@root_path, dir) }
+      end
+
+      def mkdir_command
+        "echo \"#{dirs.join(" ")}\" | xargs mkdir -p"
+      end
+
+      def message
+        "Creating archive directories in #{@root_path}"
       end
     end
   end

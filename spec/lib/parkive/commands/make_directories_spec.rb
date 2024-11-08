@@ -10,15 +10,17 @@ module Parkive::Commands
     let(:this_year) { Time.now.year.to_s }
 
     it "builds commands" do
-      command = MakeDirectories.new(temp_dir, this_year)
-      commands = command.commands
+      cmd = MakeDirectories.new(temp_dir, this_year)
+      commands = cmd.commands
 
-      expect(commands.length).to eq(1)
-      expect(commands.first).to match(/^echo /)
-      expect(commands.first).to match(/| xargs mkdir -p$/)
+      expect(commands.length).to eq(2)
+      expect(commands.first).to match("Creating archive directories")
 
-      command.dirs.each do |path|
-        expect(commands.first).to include(path)
+      expect(commands.last).to match(/^echo /)
+      expect(commands.last).to match(/| xargs mkdir -p$/)
+
+      cmd.dirs.each do |path|
+        expect(commands.last).to include(path)
       end
     end
   end
