@@ -10,14 +10,15 @@ module Parkive::Commands
     let(:this_year) { Time.now.year.to_s }
 
     it "builds commands" do
-      commands = MakeDirectories.new(temp_dir, this_year).build
+      command = MakeDirectories.new(temp_dir, this_year)
+      commands = command.build
 
-      dirs = Parkive::MONTH_DIRNAMES.values
-      dirs << "#{this_year}.Media"
-      dirs << "#{this_year}.Tax"
+      expect(commands.length).to eq(1)
+      expect(commands.first).to match(/^echo /)
+      expect(commands.first).to match(/| xargs mkdir -p$/)
 
-      dirs.each do |dir|
-        expect(commands).to include("mkdir -p #{File.join(temp_dir, this_year, dir)}")
+      command.dirs.each do |path|
+        expect(commands.first).to include(path)
       end
     end
   end

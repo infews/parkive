@@ -12,7 +12,7 @@ module Parkive
     let(:temp_dir) { @temp_dir }
     let(:this_year) { Time.now.year.to_s }
 
-    context "and no destination is provided" do
+    context "when no destination is provided" do
       it "fails with a usage error" do
         expect do
           CLI.new.invoke(:make_directories)
@@ -20,7 +20,7 @@ module Parkive
       end
     end
 
-    context "and the destination does not exist" do
+    context "when the destination does not exist" do
       it "does not create a directory" do
         expect do
           CLI.new.invoke(:make_directories, ["#{temp_dir}/foo"])
@@ -35,8 +35,8 @@ module Parkive
       end
     end
 
-    context "and the destination exists" do
-      context "when the year is not specified" do
+    context "when the destination exists" do
+      context "and when the year is not specified" do
         it "creates the expected directories" do
           CLI.new.invoke(:make_directories, [temp_dir])
 
@@ -62,7 +62,7 @@ module Parkive
         end
       end
 
-      context "when the year is specified" do
+      context "and when the year is specified" do
         it "creates the expected directories" do
           CLI.new.invoke(:make_directories, [temp_dir], {year: "2002"})
 

@@ -6,10 +6,11 @@ module Parkive
       def initialize(destination, year)
         @year = year
         @root_path = File.join(destination, year)
+        @commands = []
       end
 
       def build
-        dirs.collect { |dir| "mkdir -p #{File.join(@root_path, dir)}" }
+        @commands << "echo \"#{dirs.join(" ")}\" | xargs mkdir -p"
       end
 
       def dirs
@@ -17,6 +18,7 @@ module Parkive
         d << "#{@year}.Media"
         d << "#{@year}.Tax"
         d.flatten
+          .collect { |dir| File.join(@root_path, dir) }
       end
     end
   end
