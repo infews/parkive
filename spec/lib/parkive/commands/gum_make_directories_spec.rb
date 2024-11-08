@@ -10,7 +10,7 @@ module Parkive::Commands
     let(:this_year) { Time.now.year.to_s }
 
     it "builds commands" do
-      commands = GumMakeDirectories.new(temp_dir, this_year).build
+      commands = GumMakeDirectories.new(temp_dir, this_year).commands
 
       expect(commands.length).to eq(2)
       expect(commands.first).to include("gum style")

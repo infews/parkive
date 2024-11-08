@@ -9,7 +9,7 @@ module Parkive
         @commands = []
       end
 
-      def build
+      def commands
         @commands << "echo \"#{dirs.join(" ")}\" | xargs mkdir -p"
       end
 

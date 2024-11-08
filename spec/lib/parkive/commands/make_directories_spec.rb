@@ -11,7 +11,7 @@ module Parkive::Commands
 
     it "builds commands" do
       command = MakeDirectories.new(temp_dir, this_year)
-      commands = command.build
+      commands = command.commands
 
       expect(commands.length).to eq(1)
       expect(commands.first).to match(/^echo /)

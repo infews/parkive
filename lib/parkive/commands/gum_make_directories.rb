@@ -3,7 +3,7 @@
 module Parkive
   module Commands
     class GumMakeDirectories < MakeDirectories
-      def build
+      def commands
         @commands << "gum style --foreground=\"0000ff\" \"Creating archive directories in #{@root_path}\""
         super
       end

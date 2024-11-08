@@ -8,7 +8,7 @@ module Parkive
       raise NoDestinationDirectoryError.new(destination) unless Dir.exist?(destination)
 
       gum_present = `which gum`.include?("bin/gum")
-      commands = Commands::Factory.forMakeDirectories(gum_present).new(destination, options[:year]).build
+      commands = Commands::Factory.forMakeDirectories(gum_present).new(destination, options[:year]).commands
 
       commands.each { |cmd| system cmd }
     end
