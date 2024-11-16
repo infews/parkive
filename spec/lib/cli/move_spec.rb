@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "fileutils"
+
 module Parkive
   RSpec.describe "Parkive::CLI#move" do
     around :each do |example|
@@ -10,7 +12,6 @@ module Parkive
       end
     end
     let(:temp_dir) { @temp_dir }
-    let(:this_year) { Time.now.year.to_s }
 
     context "when no destination is provided" do
       it "fails with a usage error" do
@@ -23,18 +24,47 @@ module Parkive
     context "when the destination does not exist" do
       it "fails with a useful error" do
         expect do
-          CLI.new.invoke(:move, ["#{temp_dir}/foo"])
+          CLI.new.invoke(:move, [File.join("foo")])
         end.to raise_error(NoDestinationDirectoryError)
       end
     end
 
     context "when the destination exists" do
-      it "moves matching files to the destination"
-      it "does mot move non matching files to the destination"
+      let(:source_dir) { File.join(temp_dir, "parkive", "source") }
+      let(:dest_dir) { File.join(temp_dir, "parkive", "dest") }
+      let(:file_1) { "2004.01.05.foo.pdf" }
+      let(:file_2) { "2004.07.19.foo.pdf" }
+      let(:file_3) { "2013.11.27.foo.pdf" }
+      let(:file_4) { "quux.txt" }
+
+      before do
+        FileUtils.mkdir_p(source_dir)
+        Dir.chdir(source_dir) do
+          FileUtils.touch [file_1, file_2, file_3, file_4]
+        end
+        FileUtils.mkdir_p(File.join(dest_dir, "2004", "01.Jan"))
+        FileUtils.mkdir_p(File.join(dest_dir, "2004", "07.Jul"))
+        FileUtils.mkdir_p(File.join(dest_dir, "2013", "11.Nov"))
+      end
+
+      it "moves archivable files to the destination" do
+        CLI.new.invoke(:move, [dest_dir], {source: source_dir})
+
+        expect(File.exist?(File.join(source_dir, file_1))).to eq(false)
+        expect(File.exist?(File.join(dest_dir, "2004", "01.Jan", file_1))).to eq(true)
+
+        expect(File.exist?(File.join(source_dir, file_2))).to eq(false)
+        expect(File.exist?(File.join(dest_dir, "2004", "07.Jul", file_2))).to eq(true)
+
+        expect(File.exist?(File.join(source_dir, file_3))).to eq(false)
+        expect(File.exist?(File.join(dest_dir, "2013", "11.Nov", file_3))).to eq(true)
+      end
+
+      it "does mot move non matching files to the destination" do
+        expect(File.exist?(File.join(source_dir, file_4))).to eq(true)
+      end
     end
 
     # how to handle files that are already present?
-    # use -i for command b/c don't overwrite without permission
-
   end
 end

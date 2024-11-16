@@ -8,7 +8,7 @@ require_relative "cli"
 module Parkive
   class NoDestinationDirectoryError < Thor::Error
     def initialize(path)
-      super "Destination directory '#{path}' does not exist."
+      super("Destination directory '#{path}' does not exist.")
     end
   end
 

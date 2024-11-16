@@ -3,10 +3,9 @@ require "date"
 
 module Parkive
   class ArchivablePathname < Pathname
-
     def self.from(paths)
       Array(paths).collect { |path| new(path) }
-                  .select(&:is_archivable?)
+        .select(&:is_archivable?)
     end
 
     def initialize(path)
@@ -22,7 +21,7 @@ module Parkive
       return "" unless is_archivable? # TODO: Should this be a raise?
 
       year = @date.strftime("%Y")
-      month = "#{@date.strftime('%m')}.#{@date.strftime('%b')}"
+      month = "#{@date.strftime("%m")}.#{@date.strftime("%b")}"
       File.join(year, month)
     end
 
