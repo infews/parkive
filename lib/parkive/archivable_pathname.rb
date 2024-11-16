@@ -11,7 +11,7 @@ module Parkive
 
     def initialize(path)
       super
-      @date = extract_date_from(path)
+      @date = extract_date_from(File.basename(path))
     end
 
     def is_archivable?
@@ -19,7 +19,7 @@ module Parkive
     end
 
     def archive_path
-      return "" if @date.nil?
+      return "" unless is_archivable? # TODO: Should this be a raise?
 
       year = @date.strftime("%Y")
       month = "#{@date.strftime('%m')}.#{@date.strftime('%b')}"
