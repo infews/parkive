@@ -39,32 +39,41 @@ module Parkive
 
       before do
         FileUtils.mkdir_p(source_dir)
-        Dir.chdir(source_dir) do
-          FileUtils.touch [file_1, file_2, file_3, file_4]
-        end
         FileUtils.mkdir_p(File.join(dest_dir, "2004", "01.Jan"))
         FileUtils.mkdir_p(File.join(dest_dir, "2004", "07.Jul"))
         FileUtils.mkdir_p(File.join(dest_dir, "2013", "11.Nov"))
+        Dir.chdir(source_dir) do
+          FileUtils.touch [file_1, file_2, file_3, file_4]
+        end
       end
 
-      it "moves archivable files to the destination" do
-        CLI.new.invoke(:move, [dest_dir], {source: source_dir})
+      context "and no archivable files collide" do
+        it "moves archivable files to the destination" do
+          CLI.new.invoke(:move, [dest_dir], { source: source_dir })
 
-        expect(File.exist?(File.join(source_dir, file_1))).to eq(false)
-        expect(File.exist?(File.join(dest_dir, "2004", "01.Jan", file_1))).to eq(true)
+          expect(File.exist?(File.join(source_dir, file_1))).to eq(false)
+          expect(File.exist?(File.join(dest_dir, "2004", "01.Jan", file_1))).to eq(true)
 
-        expect(File.exist?(File.join(source_dir, file_2))).to eq(false)
-        expect(File.exist?(File.join(dest_dir, "2004", "07.Jul", file_2))).to eq(true)
+          expect(File.exist?(File.join(source_dir, file_2))).to eq(false)
+          expect(File.exist?(File.join(dest_dir, "2004", "07.Jul", file_2))).to eq(true)
 
-        expect(File.exist?(File.join(source_dir, file_3))).to eq(false)
-        expect(File.exist?(File.join(dest_dir, "2013", "11.Nov", file_3))).to eq(true)
+          expect(File.exist?(File.join(source_dir, file_3))).to eq(false)
+          expect(File.exist?(File.join(dest_dir, "2013", "11.Nov", file_3))).to eq(true)
+        end
+
+        it "does mot move non matching files to the destination" do
+          expect(File.exist?(File.join(source_dir, file_4))).to eq(true)
+        end
       end
 
-      it "does mot move non matching files to the destination" do
-        expect(File.exist?(File.join(source_dir, file_4))).to eq(true)
+      context "with a collision" do
+        context "and the user skips" do
+          it "only moves some of the files"
+        end
+        context "and the user forces" do
+          it "moves all of the files"
+        end
       end
     end
-
-    # how to handle files that are already present?
   end
 end
