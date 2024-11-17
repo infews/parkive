@@ -10,7 +10,7 @@ module Parkive
 
       source_paths = ArchivablePathname.from(Dir.glob(File.join(options[:source], "*")))
       Archiver.new(source_paths, destination)
-        .move_to { |path| path.is_archivable? }
+        .move_if { |path| path.is_archivable? }
     end
 
     # TODO: not sure how to test this

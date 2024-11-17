@@ -12,12 +12,22 @@ module Parkive
       @archive_root = archive_root
     end
 
-    def move_to(&block)
+    def move_if(&block)
       @paths.each_with_object(Archiver.new([], @archive_root)) do |path, remaining|
         if yield path
           FileUtils.mv(path, File.join(@archive_root, path.archive_path))
         else
           remaining << path
+        end
+      end
+    end
+
+    def move_unless(&block)
+      @paths.each_with_object(Archiver.new([], @archive_root)) do |path, remaining|
+        if yield path
+          remaining << path
+        else
+          FileUtils.mv(path, File.join(@archive_root, path.archive_path))
         end
       end
     end

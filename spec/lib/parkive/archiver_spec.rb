@@ -21,9 +21,9 @@ module Parkive
       FileUtils.touch([move_me, move_me_too, stay_put])
     end
 
-    describe "#move_to" do
+    describe "#move_if" do
       it "moves only the files that are truthy" do
-        archiver.move_to { |path| path == move_me || path == move_me_too }
+        archiver.move_if { |path| path == move_me || path == move_me_too }
 
         expect(File.exist?(move_me)).to eq(false)
         expect(File.exist?(File.join(archive_root, move_me.basename))).to eq(true)
@@ -34,7 +34,26 @@ module Parkive
       end
 
       it "returns the files that were not moved" do
-        remaining = archiver.move_to { |path| path == move_me || path == move_me_too }
+        remaining = archiver.move_if { |path| path == move_me || path == move_me_too }
+
+        expect(remaining.first).to eq(stay_put)
+      end
+      end
+
+    describe "#move_unless" do
+      it "moves only the files that are truthy" do
+        archiver.move_unless { |path| path == stay_put }
+
+        expect(File.exist?(move_me)).to eq(false)
+        expect(File.exist?(File.join(archive_root, move_me.basename))).to eq(true)
+        expect(File.exist?(move_me_too)).to eq(false)
+        expect(File.exist?(File.join(archive_root, move_me_too.basename))).to eq(true)
+        expect(File.exist?(stay_put)).to eq(true)
+        expect(File.exist?(File.join(archive_root, stay_put.basename))).to eq(false)
+      end
+
+      it "returns the files that were not moved" do
+        remaining = archiver.move_unless { |path| path == stay_put }
 
         expect(remaining.first).to eq(stay_put)
       end
