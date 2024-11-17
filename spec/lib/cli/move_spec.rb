@@ -49,7 +49,9 @@ module Parkive
 
       context "and no archivable files collide" do
         it "moves archivable files to the destination" do
-          CLI.new.invoke(:move, [dest_dir], { source: source_dir })
+          CLI.new.invoke(:move, [dest_dir], {source: source_dir})
+
+          Dir.glob("/#{dest_dir}/*")
 
           expect(File.exist?(File.join(source_dir, file_1))).to eq(false)
           expect(File.exist?(File.join(dest_dir, "2004", "01.Jan", file_1))).to eq(true)
