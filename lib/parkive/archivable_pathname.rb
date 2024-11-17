@@ -2,7 +2,10 @@ require "pathname"
 require "date"
 
 module Parkive
+
   class ArchivablePathname < Pathname
+    attr_accessor :move
+
     def self.from(paths)
       Array(paths).collect { |path| new(path) }
         .select(&:is_archivable?)
@@ -11,6 +14,15 @@ module Parkive
     def initialize(path)
       super
       @date = extract_date_from(File.basename(path))
+      @move = false
+    end
+
+    def move?
+      move
+    end
+
+    def exist?
+      File.exist?(self)
     end
 
     def is_archivable?
