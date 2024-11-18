@@ -47,7 +47,7 @@ module Parkive
         end
       end
 
-      context "and no archivable files collide" do
+      context "and no file is already present in the destination" do
         it "moves archivable files to the destination" do
           CLI.new.invoke(:move, [dest_dir], {source: source_dir})
 
@@ -65,15 +65,6 @@ module Parkive
 
         it "does mot move non matching files to the destination" do
           expect(File.exist?(File.join(source_dir, file_4))).to eq(true)
-        end
-      end
-
-      context "with a collision" do
-        context "and the user skips" do
-          it "only moves some of the files"
-        end
-        context "and the user forces" do
-          it "moves all of the files"
         end
       end
     end

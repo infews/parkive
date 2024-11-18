@@ -2,7 +2,6 @@ require "pathname"
 require "date"
 
 module Parkive
-
   class ArchivablePathname < Pathname
     attr_accessor :move
 
@@ -19,10 +18,6 @@ module Parkive
 
     def move?
       move
-    end
-
-    def exist?
-      File.exist?(self)
     end
 
     def is_archivable?

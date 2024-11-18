@@ -2,13 +2,22 @@
 
 module Parkive
   RSpec.describe ArchivablePathname do
+    around :each do |example|
+      Dir.mktmpdir do |dir|
+        @temp_dir = dir
+        example.run
+      end
+    end
+
+    let(:temp_dir) { @temp_dir }
+
     describe ".from" do
       it "returns an array of ArchivableFiles only for filenames that match" do
         files = ["a/b/2024.01.31.foo.pdf",
-                 "a/b/1997.11.03.bar.txt",
-                 "foo/b/2000.05.17.baz.map",
-                 "s/d/2000.19.43.corge.jpg",
-                 "quux.txt"]
+          "a/b/1997.11.03.bar.txt",
+          "foo/b/2000.05.17.baz.map",
+          "s/d/2000.19.43.corge.jpg",
+          "quux.txt"]
 
         archivables = ArchivablePathname.from(files)
 
@@ -47,19 +56,6 @@ module Parkive
           describe "#archive_path" do
             it "returns the archive path" do
               expect(archivable.archive_path).to eq("")
-            end
-          end
-        end
-
-        context "existence" do
-          describe "#exist?" do
-            it "should reflect the path on the filesystem" do
-              expect(archivable.exist?).to eq(false)
-
-              Dir.mktmpdir do |dir|
-                FileUtils.touch(archivable)
-                expect(archivable.exist?).to eq(true)
-              end
             end
           end
         end

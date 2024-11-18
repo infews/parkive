@@ -5,14 +5,14 @@ require "forwardable"
 module Parkive
   class Archiver
     extend Forwardable
-    def_delegators :@paths, :<<, :first
+    def_delegators :@paths, :<<, :first, :[]
 
     def initialize(paths, archive_root)
       @paths = Array(paths)
       @archive_root = archive_root
     end
 
-    def move_if(&block)
+    def move(&block)
       @paths.each_with_object(Archiver.new([], @archive_root)) do |path, remaining|
         if yield path
           FileUtils.mv(path, File.join(@archive_root, path.archive_path))
@@ -22,13 +22,10 @@ module Parkive
       end
     end
 
-    def move_unless(&block)
-      @paths.each_with_object(Archiver.new([], @archive_root)) do |path, remaining|
-        if yield path
-          remaining << path
-        else
-          FileUtils.mv(path, File.join(@archive_root, path.archive_path))
-        end
+    def collect(&block)
+      @paths.each_with_object(Archiver.new([], @archive_root)) do |path, mapped|
+        yield path
+        mapped << path
       end
     end
   end
