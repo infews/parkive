@@ -15,7 +15,6 @@ module Parkive
           .collect { |path| path.move = prompt.ask(label: "File #{File.join(archive_root, path.archive_path, path.basename)} exists. Overwrite?") }
           .move { |path| path.move? }
       end
-      # .log
     end
   end
 end
