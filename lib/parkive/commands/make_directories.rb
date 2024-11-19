@@ -21,7 +21,9 @@ module Parkive
       archive_paths = DIRECTORIES.collect { |dir| File.join(archive_root, year, dir) }
       archive_paths << File.join(archive_root, year, "#{year}.Media")
       archive_paths << File.join(archive_root, year, "#{year}.Tax")
-      puts Rainbow("Making archive directory for #{year} in #{archive_root}.").cyan if verbose
+
+      puts Rainbow("Making archive directories in #{archive_root}/#{year}.").cyan if verbose
+
       FileUtils.mkdir_p(archive_paths)
     end
   end
