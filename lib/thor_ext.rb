@@ -27,7 +27,7 @@ module ThorExt
       base.check_unknown_options!
     end
 
-    def start(given_args=ARGV, config={})
+    def start(given_args = ARGV, config = {})
       config[:shell] ||= Thor::Base.shell.new
       handle_help_switches(given_args) do |args|
         dispatch(nil, args, nil, config)

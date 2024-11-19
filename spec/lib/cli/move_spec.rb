@@ -42,7 +42,7 @@ module Parkive
       end
       it "fails with a descriptive error" do
         expect do
-          CLI.new.invoke(:move, [dest_dir], { source: source_dir })
+          CLI.new.invoke(:move, [dest_dir], {source: source_dir})
         end.to raise_error(NoArchivableFilesFoundError)
       end
     end
@@ -67,7 +67,7 @@ module Parkive
 
       context "and no file is already present in the destination" do
         it "moves archivable files to the destination" do
-          CLI.new.invoke(:move, [dest_dir], { source: source_dir })
+          CLI.new.invoke(:move, [dest_dir], {source: source_dir})
 
           Dir.glob("/#{dest_dir}/*")
 
