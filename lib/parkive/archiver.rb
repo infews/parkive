@@ -21,7 +21,7 @@ module Parkive
           puts("Moving to " + Rainbow(File.join(path.archive_path, path.basename)).cyan) if @verbose
         else
           remaining << path
-          puts("File exits. ySkipping " + Rainbow(File.join(path.archive_path, path.basename)).yellow) if @verbose
+          puts("File exists. Skipping " + Rainbow(path.basename).yellow) if @verbose
         end
       end
     end
