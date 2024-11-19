@@ -4,6 +4,8 @@ module Parkive
   module Commands
     def self.move(source_paths:, archive_root:, prompt:, verbose: false, force: false)
       archivable_paths = ArchivablePathname.from(source_paths)
+      raise NoArchivableFilesFoundError.new(source_paths) if archivable_paths.empty?
+
       a = Archiver.new(paths: archivable_paths, archive_root: archive_root, verbose: verbose)
 
       if force

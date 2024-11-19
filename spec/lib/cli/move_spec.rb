@@ -29,6 +29,24 @@ module Parkive
       end
     end
 
+    context "when there are no source files" do
+      let(:source_dir) { File.join(temp_dir, "parkive", "source") }
+      let(:dest_dir) { File.join(temp_dir, "parkive", "dest") }
+
+      before do
+        FileUtils.mkdir_p(source_dir)
+        FileUtils.mkdir_p(dest_dir)
+        Dir.chdir(source_dir) do
+          FileUtils.touch "quux.txt"
+        end
+      end
+      it "fails with a descriptive error" do
+        expect do
+          CLI.new.invoke(:move, [dest_dir], { source: source_dir })
+        end.to raise_error(NoArchivableFilesFoundError)
+      end
+    end
+
     context "when the destination exists" do
       let(:source_dir) { File.join(temp_dir, "parkive", "source") }
       let(:dest_dir) { File.join(temp_dir, "parkive", "dest") }
@@ -49,7 +67,7 @@ module Parkive
 
       context "and no file is already present in the destination" do
         it "moves archivable files to the destination" do
-          CLI.new.invoke(:move, [dest_dir], {source: source_dir})
+          CLI.new.invoke(:move, [dest_dir], { source: source_dir })
 
           Dir.glob("/#{dest_dir}/*")
 
