@@ -14,7 +14,7 @@ module Parkive
     let(:move_me) { ArchivablePathname.new(File.join(temp_dir, "move_me")) }
     let(:move_me_too) { ArchivablePathname.new(File.join(temp_dir, "move_me_too")) }
     let(:stay_put) { ArchivablePathname.new(File.join(temp_dir, "stay_put")) }
-    let(:archiver) { Archiver.new([move_me, move_me_too, stay_put], archive_root) }
+    let(:archiver) { Archiver.new(paths: [move_me, move_me_too, stay_put], archive_root: archive_root, verbose: false) }
 
     before do
       FileUtils.mkdir(archive_root)

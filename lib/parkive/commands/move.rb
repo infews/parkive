@@ -2,9 +2,9 @@
 
 module Parkive
   module Commands
-    def self.move(source_paths:, archive_root:, prompt:, force: false)
+    def self.move(source_paths:, archive_root:, prompt:, verbose: false, force: false)
       archivable_paths = ArchivablePathname.from(source_paths)
-      a = Archiver.new(archivable_paths, archive_root)
+      a = Archiver.new(paths: archivable_paths, archive_root: archive_root, verbose: verbose)
 
       if force
         a.move { true }
