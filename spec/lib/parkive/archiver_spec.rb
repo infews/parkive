@@ -21,9 +21,9 @@ module Parkive
       FileUtils.touch([move_me, move_me_too, stay_put])
     end
 
-    describe "#move" do
+    describe "#store" do
       it "moves only the files that are truthy" do
-        archiver.move { |path| path == move_me || path == move_me_too }
+        archiver.store { |path| path == move_me || path == move_me_too }
 
         expect(File.exist?(move_me)).to eq(false)
         expect(File.exist?(File.join(archive_root, move_me.basename))).to eq(true)
@@ -34,7 +34,7 @@ module Parkive
       end
 
       it "returns the files that were not moved" do
-        remaining = archiver.move { |path| path == move_me || path == move_me_too }
+        remaining = archiver.store { |path| path == move_me || path == move_me_too }
 
         expect(remaining.first).to eq(stay_put)
       end

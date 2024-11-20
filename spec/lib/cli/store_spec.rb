@@ -16,7 +16,7 @@ module Parkive
     context "when no destination is provided" do
       it "fails with a usage error" do
         expect do
-          CLI.new.invoke(:move)
+          CLI.new.invoke(:store)
         end.to raise_error(Thor::InvocationError)
       end
     end
@@ -24,7 +24,7 @@ module Parkive
     context "when the destination does not exist" do
       it "fails with a useful error" do
         expect do
-          CLI.new.invoke(:move, [File.join("foo")])
+          CLI.new.invoke(:store, [File.join("foo")])
         end.to raise_error(NoDestinationDirectoryError)
       end
     end
@@ -42,7 +42,7 @@ module Parkive
       end
       it "fails with a descriptive error" do
         expect do
-          CLI.new.invoke(:move, [dest_dir], {source: source_dir})
+          CLI.new.invoke(:store, [dest_dir], {source: source_dir})
         end.to raise_error(NoArchivableFilesFoundError)
       end
     end
@@ -67,7 +67,7 @@ module Parkive
 
       context "and no file is already present in the destination" do
         it "moves archivable files to the destination" do
-          CLI.new.invoke(:move, [dest_dir], {source: source_dir})
+          CLI.new.invoke(:store, [dest_dir], {source: source_dir})
 
           Dir.glob("/#{dest_dir}/*")
 

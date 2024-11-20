@@ -2,7 +2,7 @@
 
 require "prompts"
 module Parkive
-  RSpec.describe "Commands.move" do
+  RSpec.describe "Commands.store" do
     around :each do |example|
       Dir.mktmpdir do |dir|
         @temp_dir = dir
@@ -31,7 +31,7 @@ module Parkive
 
       context "and no file is already present in the destination" do
         it "moves archivable files to the destination" do
-          Commands.move(source_paths: Dir.glob(File.join(source_dir, "*")),
+          Commands.store(source_paths: Dir.glob(File.join(source_dir, "*")),
             archive_root: dest_dir,
             prompt: {})
 
@@ -62,7 +62,7 @@ module Parkive
             prompter = double("prompter")
             allow(prompter).to receive(:ask) { false }
 
-            Commands.move(source_paths: Dir.glob(File.join(source_dir, "*")),
+            Commands.store(source_paths: Dir.glob(File.join(source_dir, "*")),
               archive_root: dest_dir,
               prompt: prompter)
 
@@ -85,7 +85,7 @@ module Parkive
             prompter = double("prompter")
             allow(prompter).to receive(:ask) { true }
 
-            Commands.move(source_paths: Dir.glob(File.join(source_dir, "*")),
+            Commands.store(source_paths: Dir.glob(File.join(source_dir, "*")),
               archive_root: dest_dir,
               prompt: prompter)
 
@@ -105,7 +105,7 @@ module Parkive
 
         context "and the user forces" do
           it "moves all of the files" do
-            Commands.move(source_paths: Dir.glob(File.join(source_dir, "*")),
+            Commands.store(source_paths: Dir.glob(File.join(source_dir, "*")),
               archive_root: dest_dir,
               prompt: {},
               force: true)

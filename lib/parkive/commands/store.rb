@@ -2,18 +2,18 @@
 
 module Parkive
   module Commands
-    def self.move(source_paths:, archive_root:, prompt:, verbose: false, force: false)
+    def self.store(source_paths:, archive_root:, prompt:, verbose: false, force: false)
       archivable_paths = ArchivablePathname.from(source_paths)
       raise NoArchivableFilesFoundError.new(source_paths) if archivable_paths.empty?
 
       a = Archiver.new(paths: archivable_paths, archive_root: archive_root, verbose: verbose)
 
       if force
-        a.move { true }
+        a.store { true }
       else
-        a.move { |path| !File.exist?(File.join(archive_root, path.archive_path, path.basename)) }
+        a.store { |path| !File.exist?(File.join(archive_root, path.archive_path, path.basename)) }
           .collect { |path| path.move = prompt.ask(label: "File #{File.join(archive_root, path.archive_path, path.basename)} exists. Overwrite?") }
-          .move { |path| path.move? }
+          .store { |path| path.move? }
       end
     end
   end

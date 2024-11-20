@@ -14,7 +14,7 @@ module Parkive
       @verbose = verbose
     end
 
-    def move(&block)
+    def store(&block)
       @paths.each_with_object(Archiver.new(paths: [], archive_root: @archive_root, verbose: @verbose)) do |path, remaining|
         if yield path
           FileUtils.mv(path, File.join(@archive_root, path.archive_path))
