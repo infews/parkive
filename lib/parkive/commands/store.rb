@@ -8,13 +8,11 @@ module Parkive
 
       a = Archiver.new(paths: archivable_paths, archive_root: archive_root, verbose: verbose)
 
-      if force
-        a.store { true }
-      else
-        a.store { |path| !File.exist?(File.join(archive_root, path.archive_path, path.basename)) }
-          .collect { |path| path.move = prompt.ask(label: "File #{File.join(archive_root, path.archive_path, path.basename)} exists. Overwrite?") }
-          .store { |path| path.move? }
-      end
+      a.store_all and return if force
+
+      a.store { |path| !File.exist?(File.join(archive_root, path.archive_path, path.basename)) }
+        .collect { |path| path.move = prompt.ask(label: "File #{File.join(archive_root, path.archive_path, path.basename)} exists. Overwrite?") }
+        .store { |path| path.move? }
     end
   end
 end

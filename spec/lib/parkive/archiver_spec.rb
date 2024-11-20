@@ -40,6 +40,25 @@ module Parkive
       end
     end
 
+    describe "#store_all" do
+      it "moves all of the archivable files" do
+        archiver.store_all
+
+        expect(File.exist?(move_me)).to eq(false)
+        expect(File.exist?(File.join(archive_root, move_me.basename))).to eq(true)
+        expect(File.exist?(move_me_too)).to eq(false)
+        expect(File.exist?(File.join(archive_root, move_me_too.basename))).to eq(true)
+        expect(File.exist?(stay_put)).to eq(false)
+        expect(File.exist?(File.join(archive_root, stay_put.basename))).to eq(true)
+      end
+
+      it "returns the files that were not moved" do
+        remaining = archiver.store { |path| path == move_me || path == move_me_too }
+
+        expect(remaining.first).to eq(stay_put)
+      end
+    end
+
     describe "#collect" do
       it "maps and returns another Archiver" do
         mapped = archiver.collect do |path|

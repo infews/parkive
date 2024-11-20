@@ -26,6 +26,10 @@ module Parkive
       end
     end
 
+    def store_all
+      store { true }
+    end
+
     def collect(&block)
       @paths.each_with_object(Archiver.new(paths: [], archive_root: @archive_root, verbose: @verbose)) do |path, mapped|
         yield path
