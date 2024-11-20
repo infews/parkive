@@ -11,8 +11,12 @@ module Parkive
       a.store_all and return if force
 
       a.store { |path| !File.exist?(File.join(archive_root, path.archive_path, path.basename)) }
-        .collect { |path| path.move = prompt.ask(label: "File #{File.join(archive_root, path.archive_path, path.basename)} exists. Overwrite?") }
+        .collect { |path| path.move = prompt.ask(label: overwrite_prompt(archive_root, path)) }
         .store { |path| path.move? }
+    end
+
+    def self.overwrite_prompt(archive_root, path)
+      "File #{File.join(archive_root, path.archive_path, path.basename)} exists in archive. Overwrite?"
     end
   end
 end
