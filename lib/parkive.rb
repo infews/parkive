@@ -5,6 +5,8 @@ require_relative "parkive/archiver"
 require_relative "cli"
 
 module Parkive
+  DATE_PATTERN = /^(\d{4}\.\d{2}\.\d{2})/
+
   class NoDestinationDirectoryError < Thor::Error
     def initialize(path)
       message = "Destination directory \"#{path}\" does not exist."
@@ -22,6 +24,4 @@ module Parkive
       super(message)
     end
   end
-
-  DATE_PATTERN = /^(\d{4}\.\d{2}\.\d{2})/
 end
