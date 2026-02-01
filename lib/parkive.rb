@@ -2,6 +2,7 @@ require_relative "parkive/version"
 require_relative "parkive/commands"
 require_relative "parkive/archivable_pathname"
 require_relative "parkive/archiver"
+require_relative "parkive/dependencies"
 require_relative "cli"
 
 module Parkive
@@ -29,6 +30,14 @@ module Parkive
   class NoSourceDirectoryError < Thor::Error
     def initialize(path)
       message = "Source directory \"#{path}\" does not exist."
+      super(message)
+    end
+  end
+
+  # @spec REN-CLI-003
+  class PopplerNotInstalledError < Thor::Error
+    def initialize
+      message = "Poppler is not installed. Please install it with: brew install poppler"
       super(message)
     end
   end

@@ -21,5 +21,25 @@ module Parkive
         end.to raise_error(NoSourceDirectoryError)
       end
     end
+
+    context "when the directory exists" do
+      around :each do |example|
+        Dir.mktmpdir do |dir|
+          @temp_dir = dir
+          example.run
+        end
+      end
+      let(:temp_dir) { @temp_dir }
+
+      # @spec REN-CLI-003
+      context "when Poppler is not installed" do
+        it "fails with a useful error" do
+          allow(Dependencies).to receive(:poppler_installed?).and_return(false)
+          expect do
+            CLI.new.invoke(:rename, [temp_dir])
+          end.to raise_error(PopplerNotInstalledError)
+        end
+      end
+    end
   end
 end
