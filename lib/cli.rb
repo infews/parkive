@@ -4,6 +4,7 @@ require "thor/actions"
 require_relative "thor_ext"
 require_relative "cli/make_directories"
 require_relative "cli/store"
+require_relative "cli/rename"
 
 module Parkive
   class CLI < Thor
