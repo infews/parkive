@@ -51,6 +51,18 @@ module Parkive
           end.to raise_error(OllamaNotInstalledError)
         end
       end
+
+      # @spec REN-CLI-005
+      context "when Ollama is not running" do
+        it "fails with a useful error" do
+          allow(Dependencies).to receive(:poppler_installed?).and_return(true)
+          allow(Dependencies).to receive(:ollama_installed?).and_return(true)
+          allow(Dependencies).to receive(:ollama_running?).and_return(false)
+          expect do
+            CLI.new.invoke(:rename, [temp_dir])
+          end.to raise_error(OllamaNotRunningError)
+        end
+      end
     end
   end
 end

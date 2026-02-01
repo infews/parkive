@@ -49,4 +49,12 @@ module Parkive
       super(message)
     end
   end
+
+  # @spec REN-CLI-005
+  class OllamaNotRunningError < Thor::Error
+    def initialize
+      message = "Ollama is not running. Please start it with: ollama serve"
+      super(message)
+    end
+  end
 end
