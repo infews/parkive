@@ -24,4 +24,12 @@ module Parkive
       super(message)
     end
   end
+
+  # @spec REN-CLI-002
+  class NoSourceDirectoryError < Thor::Error
+    def initialize(path)
+      message = "Source directory \"#{path}\" does not exist."
+      super(message)
+    end
+  end
 end
