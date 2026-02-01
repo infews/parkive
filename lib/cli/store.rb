@@ -4,7 +4,7 @@ require "prompts"
 
 module Parkive
   class CLI < Thor
-    desc "store DST", "Stores files that match the archive naming format to the destination"
+    desc "store DST", "Stores files that match the archive naming format to the destination "
     method_option :source, type: :string, default: ".", desc: "Source directory for archivable files"
     method_option :force, type: :boolean, default: false, desc: "Force overwrite files at archive root"
     method_option :verbose, type: :boolean, default: false, desc: "Verbose output"
