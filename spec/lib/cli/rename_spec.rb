@@ -63,6 +63,35 @@ module Parkive
           end.to raise_error(OllamaNotRunningError)
         end
       end
+
+      context "when all dependencies are met" do
+        before do
+          allow(Dependencies).to receive(:poppler_installed?).and_return(true)
+          allow(Dependencies).to receive(:ollama_installed?).and_return(true)
+          allow(Dependencies).to receive(:ollama_running?).and_return(true)
+        end
+
+        # @spec REN-CLI-006
+        context "when the --verbose flag is provided" do
+          it "passes verbose mode to Commands.rename" do
+            expect(Commands).to receive(:rename).with(
+              directory: temp_dir,
+              verbose: true
+            )
+            CLI.new.invoke(:rename, [temp_dir], { verbose: true })
+          end
+        end
+
+        context "when the --verbose flag is not provided" do
+          it "passes verbose as false to Commands.rename" do
+            expect(Commands).to receive(:rename).with(
+              directory: temp_dir,
+              verbose: false
+            )
+            CLI.new.invoke(:rename, [temp_dir])
+          end
+        end
+      end
     end
   end
 end
