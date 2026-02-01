@@ -13,9 +13,8 @@
 
 - **REN-SCAN-001**: The system shall find all files with `.pdf` or `.PDF` extension in the specified directory.
 - **REN-SCAN-002**: The system shall filter out files that already match the archivable pattern (`YYYY.MM.DD.*`).
-- **REN-SCAN-003**: The system shall sort the remaining files alphabetically (case-insensitive).
-- **REN-SCAN-004**: If no PDF files exist in the directory, then the system shall display "no PDFs found" and exit.
-- **REN-SCAN-005**: If all PDF files already conform to the naming pattern, then the system shall display "all files already named" and exit.
+- **REN-SCAN-003**: If no PDF files exist in the directory, then the system shall display "no PDFs found" and exit.
+- **REN-SCAN-004**: If all PDF files already conform to the naming pattern, then the system shall display "all files already named" and exit.
 
 ## Text Extraction
 
@@ -55,6 +54,6 @@
 
 ## Processing Flow
 
-- **REN-PROC-001**: The system shall process all non-conforming PDFs in alphabetical order.
+- **REN-PROC-001**: The system shall process all non-conforming PDFs.
 - **REN-PROC-002**: When the user aborts with Ctrl+C, the system shall exit immediately.
 - **REN-PROC-003**: While verbose mode is enabled, the system shall display the list of files to be processed before starting.

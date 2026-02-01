@@ -86,7 +86,7 @@ This prompts the user with a suggested filename, which the user can edit. Once t
 
 The Thor command should take a directory as input. If there are no PDFs in the directory, it should report that to the user and do nothing. If all of the PDFs in the directory already conform to the filename pattern, it should report that to the user and do nothing. It should only proceed when there are PDFs in the directory that do not conform to the filename pattern.
 
-When processing, it should automatically iterate through all non-conforming PDFs in alphabetical order, prompting the user for confirmation on each file. If the user aborts (Ctrl+C), exit immediately with no special handling.
+When processing, it should automatically iterate through all non-conforming PDFs, prompting the user for confirmation on each file. If the user aborts (Ctrl+C), exit immediately with no special handling. The order of processing non-conforming PDFs does not matter.
 
 A `--verbose` flag shows additional detail during processing, such as the extracted text and raw Ollama response.
 

@@ -14,7 +14,7 @@ The File Renaming feature transforms arbitrarily-named PDFs into consistently-na
 
 ## Processing Flow
 
-The rename command processes a directory through five sequential stages. First, the Directory Scanner identifies PDFs that don't conform to the naming pattern—if none exist, we exit early with a message. Second, for each non-conforming PDF in alphabetical order, the Text Extractor uses Poppler to pull text content. Third, the LLM Extractor sends that text to Ollama, which returns structured JSON with date, vendor, and info fields. Fourth, the User Confirmation stage presents the suggested filename and waits for the user to confirm, edit, or skip. Finally, if confirmed or edited, the File Renamer performs the actual rename operation.
+The rename command processes a directory through five sequential stages. First, the Directory Scanner identifies PDFs that don't conform to the naming pattern—if none exist, we exit early with a message. Second, for each non-conforming PDF, the Text Extractor uses Poppler to pull text content. Third, the LLM Extractor sends that text to Ollama, which returns structured JSON with date, vendor, and info fields. Fourth, the User Confirmation stage presents the suggested filename and waits for the user to confirm, edit, or skip. Finally, if confirmed or edited, the File Renamer performs the actual rename operation.
 
 Each stage can fail independently: Poppler might not be installed, a PDF might lack text, Ollama might return garbage. The error handling strategy ensures each failure mode has a defined recovery path that keeps the user informed and in control.
 
@@ -26,13 +26,12 @@ Each stage can fail independently: Poppler might not be installed, a PDF might l
 
 **Input:** Directory path from command line
 
-**Output:** Array of file paths, sorted alphabetically
+**Output:** Array of file paths
 
 **Logic:**
 1. Glob for `*.pdf` and `*.PDF` in the directory (case-insensitive)
 2. Filter out files already matching the pattern `YYYY.MM.DD.*`
-3. Sort remaining files alphabetically (case-insensitive)
-4. Return the list (may be empty)
+3. Return the list (may be empty)
 
 **Pattern matching:** Use the same date extraction logic from `ArchivablePathname` to determine if a file already conforms. A file conforms if `Date.strptime(basename, "%Y.%m.%d")` succeeds.
 
@@ -302,7 +301,7 @@ Parkive::RenamePrompter
 
 ### Resolved
 
-1. **Processing order** - Alphabetical (decided in HLD)
+1. **Processing order** - Order does not matter (decided in HLD)
 2. **Abort handling** - Exit immediately, no special handling (decided in HLD)
 3. **Incomplete extraction** - Use UNKNOWN placeholders (decided in HLD)
 4. **Malformed JSON** - Retry 3x, then manual input (decided in HLD)

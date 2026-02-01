@@ -12,10 +12,9 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 ## Success Criteria
 
 - User can run `parkive rename <directory>` to rename PDFs
-- Non-conforming PDFs are processed in alphabetical order
 - User confirms, edits, or skips each rename
 - Verbose mode shows extraction details
-- All 38 EARS specs pass
+- All 37 EARS specs pass
 
 ## Implementation Phases
 
@@ -69,14 +68,13 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 #### Deliverables
 
 1. **DirectoryScanner Class**
-   - **Specs**: REN-SCAN-001, REN-SCAN-002, REN-SCAN-003
+   - **Specs**: REN-SCAN-001, REN-SCAN-002
    - `lib/parkive/directory_scanner.rb`
-   - Find `.pdf` and `.PDF` files
+   - Find `.pdf` and `.PDF` files (case-insensitive)
    - Filter out already-conforming files
-   - Sort alphabetically (case-insensitive)
 
 2. **Commands Integration**
-   - **Specs**: REN-SCAN-004, REN-SCAN-005, REN-PROC-003
+   - **Specs**: REN-SCAN-003, REN-SCAN-004, REN-PROC-003
    - `lib/parkive/commands/rename.rb` skeleton
    - Handle empty directory case
    - Handle all-conforming case
@@ -86,15 +84,14 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 
 - **REN-SCAN-001**: Test finds both `.pdf` and `.PDF` files
 - **REN-SCAN-002**: Test filters out conforming files
-- **REN-SCAN-003**: Test alphabetical sorting
-- **REN-SCAN-004**: Test "no PDFs found" message
-- **REN-SCAN-005**: Test "all files already named" message
+- **REN-SCAN-003**: Test "no PDFs found" message
+- **REN-SCAN-004**: Test "all files already named" message
 - **REN-PROC-003**: Test verbose file list display
 
 #### Definition of Done
 
 - [ ] All deliverables implemented with @spec annotations
-- [ ] Phase specs verified: REN-SCAN-001 through REN-SCAN-005, REN-PROC-003 (6 total)
+- [ ] Phase specs verified: REN-SCAN-001 through REN-SCAN-004, REN-PROC-003 (5 total)
 - [ ] Unit tests passing for DirectoryScanner
 - [ ] Integration tests for empty/all-conforming cases
 
@@ -224,7 +221,7 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 2. **Commands.rename Integration**
    - **Specs**: REN-PROC-001, REN-PROC-002
    - Wire all components together
-   - Process files in alphabetical order
+   - Process all non-conforming files
    - Handle Ctrl+C abort
 
 3. **End-to-End Testing**
@@ -235,7 +232,7 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 - **REN-FILE-001**: Test file is renamed correctly
 - **REN-FILE-002**: Test overwrite confirmation prompt
 - **REN-FILE-003**: Test file stays in same directory
-- **REN-PROC-001**: Test alphabetical processing order
+- **REN-PROC-001**: Test all non-conforming PDFs are processed
 - **REN-PROC-002**: Test Ctrl+C exits immediately
 
 #### Definition of Done
@@ -253,12 +250,12 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 | Phase | Specs | Count |
 |-------|-------|-------|
 | Phase 1: CLI and Dependencies | REN-CLI-001 to 006 | 6 |
-| Phase 2: Directory Scanner | REN-SCAN-001 to 005, REN-PROC-003 | 6 |
+| Phase 2: Directory Scanner | REN-SCAN-001 to 004, REN-PROC-003 | 5 |
 | Phase 3: Text Extraction | REN-TEXT-001 to 003 | 3 |
 | Phase 4: LLM Field Extraction | REN-LLM-001 to 008 | 8 |
 | Phase 5: User Confirmation | REN-UI-001 to 010 | 10 |
 | Phase 6: Integration | REN-FILE-001 to 003, REN-PROC-001 to 002 | 5 |
-| **Total** | | **38** |
+| **Total** | | **37** |
 
 ## Risk Assessment
 
