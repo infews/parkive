@@ -41,4 +41,12 @@ module Parkive
       super(message)
     end
   end
+
+  # @spec REN-CLI-004
+  class OllamaNotInstalledError < Thor::Error
+    def initialize
+      message = "Ollama is not installed. Please install it from https://ollama.ai and run: ollama pull llama3.1:8b"
+      super(message)
+    end
+  end
 end
