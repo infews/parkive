@@ -34,5 +34,28 @@ module Parkive
         expect(prompt).to include("JSON")
       end
     end
+
+    # @spec REN-LLM-003
+    describe "when Ollama returns valid JSON" do
+      let(:sample_text) { "Statement Date: January 15, 2026\nWells Fargo Bank\nAccount: 1234" }
+      let(:valid_json) { '{"date": "2026.01.15", "credit_card": "Visa", "vendor": "Wells Fargo", "account_number": "1234", "invoice_number": "INV-001", "type": "Statement", "other": "Monthly"}' }
+
+      it "parses all fields from the response" do
+        chat_double = instance_double("RubyLLM::Chat")
+        allow(RubyLLM).to receive(:chat).and_return(chat_double)
+        allow(chat_double).to receive(:ask).and_return(valid_json)
+
+        result = FieldExtractor.extract(sample_text)
+
+        expect(result).to be_a(Hash)
+        expect(result["date"]).to eq("2026.01.15")
+        expect(result["credit_card"]).to eq("Visa")
+        expect(result["vendor"]).to eq("Wells Fargo")
+        expect(result["account_number"]).to eq("1234")
+        expect(result["invoice_number"]).to eq("INV-001")
+        expect(result["type"]).to eq("Statement")
+        expect(result["other"]).to eq("Monthly")
+      end
+    end
   end
 end
