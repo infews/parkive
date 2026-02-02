@@ -78,7 +78,7 @@ module Parkive
               directory: temp_dir,
               verbose: true
             )
-            CLI.new.invoke(:rename, [temp_dir], { verbose: true })
+            CLI.new.invoke(:rename, [temp_dir], {verbose: true})
           end
         end
 

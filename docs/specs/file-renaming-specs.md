@@ -25,13 +25,23 @@
 ## LLM Field Extraction
 
 - **REN-LLM-001**: The system shall send extracted text to Ollama using the `llama3.1:8b` model.
-- **REN-LLM-002**: The system shall request JSON output with `date`, `vendor`, and `info` fields.
-- **REN-LLM-003**: When Ollama returns valid JSON, the system shall parse the date, vendor, and info fields.
+- **REN-LLM-002**: The system shall request JSON output with `date`, `credit_card`, `vendor`, `account_number`, `invoice_number`, `type`, and `other` fields.
+- **REN-LLM-003**: When Ollama returns valid JSON, the system shall parse all fields.
 - **REN-LLM-004**: If Ollama returns invalid JSON, then the system shall retry up to 3 times.
 - **REN-LLM-005**: If all retries fail, then the system shall fall back to manual input mode.
 - **REN-LLM-006**: If Ollama returns valid JSON with missing or empty fields, then the system shall use `UNKNOWN` as a placeholder.
 - **REN-LLM-007**: While verbose mode is enabled, the system shall display the raw Ollama response.
 - **REN-LLM-008**: While verbose mode is enabled and retrying, the system shall display each retry attempt.
+
+## Name Suggestor
+
+- **REN-NAME-001**: The system shall build a filename from extracted fields in the order: date, credit_card, vendor, account_number, invoice_number, type, other.
+- **REN-NAME-002**: The system shall omit empty fields from the filename.
+- **REN-NAME-003**: The system shall replace whitespace with dots in field values.
+- **REN-NAME-004**: The system shall remove filesystem-unsafe characters (/, \, :, *, ?, ", <, >, |) from field values.
+- **REN-NAME-005**: The system shall collapse multiple consecutive dots into a single dot.
+- **REN-NAME-006**: If the date field is missing or invalid, then the system shall use "UNKNOWN" as the date portion.
+- **REN-NAME-007**: The system shall append ".pdf" to the generated filename.
 
 ## User Confirmation
 

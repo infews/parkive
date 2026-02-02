@@ -9,6 +9,7 @@ require_relative "cli/rename"
 module Parkive
   class CLI < Thor
     extend ThorExt::Start
+
     def self.exit_on_failure?
       true
     end

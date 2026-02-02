@@ -55,11 +55,18 @@ If not found, exit with a message telling the user to install it.
 
 ### LLM Field Extractor
 
-**Responsibility:** Extract date, vendor, and info from PDF text using Ollama.
+**Responsibility:** Extract structured fields from PDF text using Ollama.
 
 **Input:** String containing PDF text
 
-**Output:** Hash with keys `:date`, `:vendor`, `:info`
+**Output:** Hash with keys:
+- `:date` (required) - Statement date in YYYY.MM.DD format
+- `:credit_card` (optional) - Card type (e.g., "Visa", "Master Card")
+- `:vendor` (optional) - Bank or provider name
+- `:account_number` (optional) - Account identifier
+- `:invoice_number` (optional) - Invoice identifier
+- `:type` (optional) - Document type (e.g., "Bill", "Statement")
+- `:other` (optional) - Any other relevant information
 
 **Implementation:**
 - Use the `ruby-llm` gem to communicate with Ollama
@@ -68,16 +75,21 @@ If not found, exit with a message telling the user to install it.
 
 **Prompt structure:**
 ```
-Extract the following from this document text:
+Extract the following from this document text. Return ALL fields, using empty string "" for any field not found.
+
+Required:
 - date: The statement/document date in YYYY.MM.DD format
-- vendor: The company name without spaces (e.g., WellsFargo, PGE, CityOfBurlingame)
-- info: An identifying number like account number or invoice number
 
-For credit cards, format vendor as CardType.Bank (e.g., MC.Apple, Visa.Costco).
-For American Express, use "Amex" as the vendor.
+Optional:
+- credit_card: Card type if this is a credit card statement (e.g., "Visa", "Master Card", "American Express")
+- vendor: The bank or provider name (e.g., "Fidelity", "Health Equity", "City of Burlingame")
+- account_number: Account number if present
+- invoice_number: Invoice number if present
+- type: Document type (e.g., "Bill", "Statement", "Escrow Statement")
+- other: Any other relevant identifying information
 
-Return ONLY valid JSON in this format:
-{"date": "YYYY.MM.DD", "vendor": "VendorName", "info": "12345"}
+Return ONLY valid JSON in this exact format:
+{"date": "YYYY.MM.DD", "credit_card": "", "vendor": "", "account_number": "", "invoice_number": "", "type": "", "other": ""}
 
 Document text:
 ---
@@ -98,6 +110,16 @@ If not running, tell user to start Ollama.
 3. If all retries fail, return nil (triggers manual input flow)
 
 **Incomplete fields:** If JSON is valid but a field is missing or empty, use `"UNKNOWN"` as placeholder.
+
+### Name Suggestor
+
+See [Name Suggestor LLD](/docs/llds/name-suggestor.md) for detailed design.
+
+**Responsibility:** Build a suggested filename from extracted fields.
+
+**Input:** Hash of extracted fields from LLM
+
+**Output:** Filename conforming to `YYYY.MM.DD.{rest}.pdf` pattern
 
 ### User Confirmation
 
@@ -158,14 +180,25 @@ File.rename(original_path, File.join(File.dirname(original_path), new_filename))
 Represents the output of LLM extraction:
 
 ```ruby
-ExtractionResult = Struct.new(:date, :vendor, :info, :raw_response, keyword_init: true) do
+ExtractionResult = Struct.new(
+  :date, :credit_card, :vendor, :account_number,
+  :invoice_number, :type, :other, :raw_response,
+  keyword_init: true
+) do
   def complete?
-    date && vendor && info &&
-      date != "UNKNOWN" && vendor != "UNKNOWN" && info != "UNKNOWN"
+    date && date != "UNKNOWN" && !date.empty?
   end
 
-  def to_filename
-    "#{date}.#{vendor}.#{info}.pdf"
+  def to_hash
+    {
+      date: date,
+      credit_card: credit_card,
+      vendor: vendor,
+      account_number: account_number,
+      invoice_number: invoice_number,
+      type: type,
+      other: other
+    }
   end
 end
 ```

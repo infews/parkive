@@ -6,6 +6,7 @@ require "rainbow"
 module Parkive
   class Archiver
     extend Forwardable
+
     def_delegators :@paths, :<<, :first, :[]
 
     def initialize(paths:, archive_root:, verbose: false)

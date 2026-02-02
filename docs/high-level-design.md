@@ -110,30 +110,52 @@ This is the heart of the work. We have a PDF, it has a text layer, and now we ne
 
 The script sends a prompt to Ollama, with the text, to attempt to extract:
 
-- The Desired Date (in the format: `YYYY.MM.DD`)
-- The Vendor Name, without spaces (e.g., `PGE`, `WellsFargo`, or `CityOfBurlingame`)
-- Remaining interesting information from the file
+##### Required Fields
 
-There are some special Cases of Vendor name. There are probably others - we will figure this out during the testing of this part of the code.
+- The Statement Date (in the format: `YYYY.MM.DD`)
 
-1. Credit Cards - these statements should list the card type first, then the bank (e.g., `MC.Apple` or `Visa.Costco`)
-2. American Express - these credit card statements should just return the vendor name as Amex
+##### Optional Fields
+
+- The Credit Card type (e.g, "Visa", "Master Card", "American Express")
+- The Vendor, which could be a Bank, or a provider (e.g, "Fidelity", "Health Equity", "City of Burlingame", "E*Trade", or "Costco")
+- The Account Number (e.g, "123652345")
+- The Invoice Number (e.g, "87865aXYZ")
+- Type Information (e.g, "Bill" or "Escrow Statement")
+- Other Information (e.g., "Mortgage" or "Lab Results")
+
+##### Results JSON
 
 The returned name should come back from Ollama as JSON of the form:
 
 ```JSON
 {
-    "date": "2026.01.31",
-    "vendor": "MC.Apple",
-    "info": "132412352"
+  "date": "2026.01.31",
+  "credit_card": "Master Card",
+  "vendor": "Apple",
+  "account_number": "132412352",
+  "invoice_number": "1092317",
+  "type": "Statement",
+  "other": ""
 }
 ```
+That is, all fields should be present and should be strings. Any field where there is not a value should be an empty string.
 
-#### Error Handling
+##### Error Handling
 
 **Malformed JSON response:** If Ollama returns invalid JSON, retry the request up to 3 times. If all retries fail, fall back to manual input - show the user the raw response and prompt them to enter the filename manually.
 
 **Incomplete extraction:** If Ollama returns valid JSON but one or more fields are missing or empty, use `UNKNOWN` as a placeholder for the missing fields. The user can then edit the suggested filename in the confirmation step.
+
+#### Name Suggestor
+
+This component should take the JSON output from Ollama and build a suggested filename according to a ruleset.
+
+- The resulting filename should always conform to the pattern.
+- It should not include any whitespace
+- All separating characters should be "."
+- It should not include any characters that are not file-system safe.
+
+We will probably need to iterate on the rules a bit to get to something correct. The low-level design document for this component will discuss this further.
 
 #### Suggesting the Name and Confirming with the User
 

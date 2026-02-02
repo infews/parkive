@@ -51,6 +51,19 @@ module Parkive
           expect(basenames).not_to include("2026.02.01.PGE.Bill.PDF")
         end
       end
+
+      # @spec REN-SCAN-003
+      context "when directory contains no PDF files" do
+        before do
+          FileUtils.touch(File.join(temp_dir, "document.txt"))
+          FileUtils.touch(File.join(temp_dir, "image.png"))
+        end
+
+        it "returns an empty array" do
+          results = DirectoryScanner.scan(temp_dir)
+          expect(results).to be_empty
+        end
+      end
     end
   end
 end
