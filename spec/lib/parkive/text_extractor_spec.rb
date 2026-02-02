@@ -17,6 +17,17 @@ module Parkive
           expect(result).to include("Sample Document")
         end
       end
+
+      # @spec REN-TEXT-002
+      context "when processing a PDF with no text layer" do
+        let(:pdf_path) { File.expand_path("../../fixtures/sample-no-text.pdf", __dir__) }
+
+        it "returns nil" do
+          result = TextExtractor.extract(pdf_path)
+
+          expect(result).to be_nil
+        end
+      end
     end
   end
 end

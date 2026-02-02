@@ -134,7 +134,7 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 - [ ] Manual test with real PDF file
 - [ ] Phase specs verified:
   - [x] REN-TEXT-001: Text extraction from valid PDF
-  - [ ] REN-TEXT-002: Handling of PDF with no text layer
+  - [x] REN-TEXT-002: Handling of PDF with no text layer
   - [ ] REN-TEXT-003: Verbose output truncation
 
 ---
