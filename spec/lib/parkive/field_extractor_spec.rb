@@ -18,5 +18,21 @@ module Parkive
         expect(RubyLLM).to have_received(:chat).with(hash_including(model: "llama3.1:8b"))
       end
     end
+
+    # @spec REN-LLM-002
+    describe ".build_prompt" do
+      it "requests JSON output with all required fields" do
+        prompt = FieldExtractor.build_prompt("sample text")
+
+        expect(prompt).to include("date")
+        expect(prompt).to include("credit_card")
+        expect(prompt).to include("vendor")
+        expect(prompt).to include("account_number")
+        expect(prompt).to include("invoice_number")
+        expect(prompt).to include("type")
+        expect(prompt).to include("other")
+        expect(prompt).to include("JSON")
+      end
+    end
   end
 end

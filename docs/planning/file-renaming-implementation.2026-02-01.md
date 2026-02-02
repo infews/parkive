@@ -172,8 +172,8 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 - [ ] Unit tests passing with mocked Ollama responses
 - [ ] Manual test with real Ollama instance
 - [ ] Phase specs verified:
-  - [ ] REN-LLM-001: Ollama communication with correct model
-  - [ ] REN-LLM-002: JSON format in request includes all fields
+  - [x] REN-LLM-001: Ollama communication with correct model
+  - [x] REN-LLM-002: JSON format in request includes all fields
   - [ ] REN-LLM-003: Successful JSON parsing of all fields
   - [ ] REN-LLM-004: Retry on invalid JSON
   - [ ] REN-LLM-005: Fallback after 3 retries
