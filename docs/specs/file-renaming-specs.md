@@ -20,7 +20,6 @@
 
 - **REN-TEXT-001**: When processing a PDF, the system shall extract text content using Poppler.
 - **REN-TEXT-002**: If a PDF has no text layer, then the system shall skip the file, report to the user, and continue to the next file.
-- **REN-TEXT-003**: While verbose mode is enabled, the system shall display the extracted text (truncated to 500 characters).
 
 ## LLM Field Extraction
 

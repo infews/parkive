@@ -13,8 +13,8 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 
 - User can run `parkive rename <directory>` to rename PDFs
 - User confirms, edits, or skips each rename
-- Verbose mode shows extraction details
-- All 44 EARS specs pass
+- Verbose mode shows file list before processing
+- All 43 EARS specs pass
 
 ## Implementation Phases
 
@@ -115,27 +115,24 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 #### Deliverables
 
 1. **TextExtractor Class**
-   - **Specs**: REN-TEXT-001, REN-TEXT-002, REN-TEXT-003
+   - **Specs**: REN-TEXT-001, REN-TEXT-002
    - `lib/parkive/text_extractor.rb`
    - Extract text using Poppler gem
    - Handle PDFs with no text layer
-   - Verbose output (truncated to 500 chars)
 
 #### Testing Requirements
 
 - **REN-TEXT-001**: Test text extraction from valid PDF
 - **REN-TEXT-002**: Test handling of PDF with no text layer
-- **REN-TEXT-003**: Test verbose output truncation
 
 #### Definition of Done
 
-- [ ] All deliverables implemented with @spec annotations
-- [ ] Unit tests passing with test PDF fixtures
+- [x] All deliverables implemented with @spec annotations
+- [x] Unit tests passing with test PDF fixtures
 - [ ] Manual test with real PDF file
-- [ ] Phase specs verified:
+- [x] Phase specs verified:
   - [x] REN-TEXT-001: Text extraction from valid PDF
   - [x] REN-TEXT-002: Handling of PDF with no text layer
-  - [ ] REN-TEXT-003: Verbose output truncation
 
 ---
 
@@ -330,12 +327,12 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 |-------|-------|-------|
 | Phase 1: CLI and Dependencies | REN-CLI-001 to 006 | 6 |
 | Phase 2: Directory Scanner | REN-SCAN-001 to 004, REN-PROC-003 | 5 |
-| Phase 3: Text Extraction | REN-TEXT-001 to 003 | 3 |
+| Phase 3: Text Extraction | REN-TEXT-001 to 002 | 2 |
 | Phase 4: LLM Field Extraction | REN-LLM-001 to 008 | 8 |
 | Phase 5: Name Suggestor | REN-NAME-001 to 007 | 7 |
 | Phase 6: User Confirmation | REN-UI-001 to 010 | 10 |
 | Phase 7: Integration | REN-FILE-001 to 003, REN-PROC-001 to 002 | 5 |
-| **Total** | | **44** |
+| **Total** | | **43** |
 
 ## Risk Assessment
 

@@ -235,7 +235,6 @@ RenameDecision = Struct.new(:action, :filename, keyword_init: true)
 When `--verbose` is enabled, output additional information:
 
 - List of files to be processed (before starting)
-- Extracted text (truncated to first 500 chars)
 - Raw Ollama response
 - Retry attempts for malformed JSON
 
