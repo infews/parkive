@@ -2,7 +2,7 @@
 
 require "prompts"
 module Parkive
-  RSpec.describe "Commands.store" do
+  RSpec.describe "Parkive::Commands.store" do
     around :each do |example|
       Dir.mktmpdir do |dir|
         @temp_dir = dir

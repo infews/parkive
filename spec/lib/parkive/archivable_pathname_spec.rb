@@ -27,6 +27,7 @@ module Parkive
     end
 
     context "instance methods" do
+      let(:filename) { "" }
       let(:archivable) { ArchivablePathname.new(filename) }
 
       context "when it has an archive-ready name" do
@@ -43,38 +44,38 @@ module Parkive
             expect(archivable.archive_path).to eq(File.join("2004", "12.Dec"))
           end
         end
+      end
 
-        context "when it does not have an archive-ready name" do
-          let(:filename) { "quux.txt" }
+      context "when it does not have an archive-ready name" do
+        let(:filename) { "quux.txt" }
 
-          describe "#is_archivable?" do
-            it "returns true" do
-              expect(archivable.is_archivable?).to eq(false)
-            end
-          end
-
-          describe "#archive_path" do
-            it "returns the archive path" do
-              expect(archivable.archive_path).to eq("")
-            end
+        describe "#is_archivable?" do
+          it "returns true" do
+            expect(archivable.is_archivable?).to eq(false)
           end
         end
 
-        context "wanting to move" do
-          describe "#move" do
-            it "is an attribute" do
-              expect(archivable.move).to eq(false)
-              archivable.move = true
-              expect(archivable.move).to eq(true)
-            end
+        describe "#archive_path" do
+          it "returns the archive path" do
+            expect(archivable.archive_path).to eq("")
           end
+        end
+      end
 
-          describe "#move?" do
-            it "reflects the state of the attribute" do
-              expect(archivable.move?).to eq(false)
-              archivable.move = true
-              expect(archivable.move?).to eq(true)
-            end
+      context "wanting to move" do
+        describe "#move" do
+          it "is an attribute" do
+            expect(archivable.move).to eq(false)
+            archivable.move = true
+            expect(archivable.move).to eq(true)
+          end
+        end
+
+        describe "#move?" do
+          it "reflects the state of the attribute" do
+            expect(archivable.move?).to eq(false)
+            archivable.move = true
+            expect(archivable.move?).to eq(true)
           end
         end
       end
