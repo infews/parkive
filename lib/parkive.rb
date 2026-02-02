@@ -4,6 +4,7 @@ require_relative "parkive/archivable_pathname"
 require_relative "parkive/archiver"
 require_relative "parkive/dependencies"
 require_relative "parkive/directory_scanner"
+require_relative "parkive/text_extractor"
 require_relative "cli"
 
 module Parkive
