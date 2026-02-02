@@ -58,4 +58,20 @@ module Parkive
       super(message)
     end
   end
+
+  # @spec REN-SCAN-003
+  class NoPDFsFoundError < Thor::Error
+    def initialize(directory)
+      message = "No PDFs found in \"#{directory}\"."
+      super(message)
+    end
+  end
+
+  # @spec REN-SCAN-004
+  class AllFilesConformingError < Thor::Error
+    def initialize(directory)
+      message = "All files already named as expected in \"#{directory}\"."
+      super(message)
+    end
+  end
 end

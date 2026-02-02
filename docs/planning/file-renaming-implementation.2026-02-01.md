@@ -55,9 +55,15 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 #### Definition of Done
 
 - [x] All deliverables implemented with @spec annotations
-- [x] Phase specs verified: REN-CLI-001 through REN-CLI-006 (6 total)
 - [x] Unit tests passing for Dependencies module
 - [x] CLI integration tests passing
+- [x] Phase specs verified:
+  - [x] REN-CLI-001: Usage help when no directory provided
+  - [x] REN-CLI-002: Error when directory doesn't exist
+  - [x] REN-CLI-003: Error when Poppler not installed
+  - [x] REN-CLI-004: Error when Ollama not installed
+  - [x] REN-CLI-005: Error when Ollama not running
+  - [x] REN-CLI-006: Verbose flag passed through
 
 ---
 
@@ -90,10 +96,15 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 
 #### Definition of Done
 
-- [ ] All deliverables implemented with @spec annotations
-- [ ] Phase specs verified: REN-SCAN-001 through REN-SCAN-004, REN-PROC-003 (5 total)
-- [ ] Unit tests passing for DirectoryScanner
-- [ ] Integration tests for empty/all-conforming cases
+- [x] All deliverables implemented with @spec annotations
+- [x] Unit tests passing for DirectoryScanner
+- [x] Integration tests for empty/all-conforming cases
+- [x] Phase specs verified:
+  - [x] REN-SCAN-001: Finds both .pdf and .PDF files
+  - [x] REN-SCAN-002: Filters out conforming files
+  - [x] REN-SCAN-003: "no PDFs found" message
+  - [x] REN-SCAN-004: "all files already named" message
+  - [x] REN-PROC-003: Verbose file list display
 
 ---
 
@@ -119,9 +130,12 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 #### Definition of Done
 
 - [ ] All deliverables implemented with @spec annotations
-- [ ] Phase specs verified: REN-TEXT-001 through REN-TEXT-003 (3 total)
 - [ ] Unit tests passing with test PDF fixtures
 - [ ] Manual test with real PDF file
+- [ ] Phase specs verified:
+  - [ ] REN-TEXT-001: Text extraction from valid PDF
+  - [ ] REN-TEXT-002: Handling of PDF with no text layer
+  - [ ] REN-TEXT-003: Verbose output truncation
 
 ---
 
@@ -158,9 +172,17 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 #### Definition of Done
 
 - [ ] All deliverables implemented with @spec annotations
-- [ ] Phase specs verified: REN-LLM-001 through REN-LLM-008 (8 total)
 - [ ] Unit tests passing with mocked Ollama responses
 - [ ] Manual test with real Ollama instance
+- [ ] Phase specs verified:
+  - [ ] REN-LLM-001: Ollama communication with correct model
+  - [ ] REN-LLM-002: JSON format in request includes all fields
+  - [ ] REN-LLM-003: Successful JSON parsing of all fields
+  - [ ] REN-LLM-004: Retry on invalid JSON
+  - [ ] REN-LLM-005: Fallback after 3 retries
+  - [ ] REN-LLM-006: UNKNOWN placeholder for missing fields
+  - [ ] REN-LLM-007: Verbose raw response output
+  - [ ] REN-LLM-008: Verbose retry attempt output
 
 ---
 
@@ -193,9 +215,16 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 #### Definition of Done
 
 - [ ] All deliverables implemented with @spec annotations
-- [ ] Phase specs verified: REN-NAME-001 through REN-NAME-007 (7 total)
 - [ ] Unit tests passing
 - [ ] Examples from LLD verified
+- [ ] Phase specs verified:
+  - [ ] REN-NAME-001: Field ordering in filename
+  - [ ] REN-NAME-002: Empty fields are omitted
+  - [ ] REN-NAME-003: Whitespace replaced with dots
+  - [ ] REN-NAME-004: Unsafe characters removed
+  - [ ] REN-NAME-005: Multiple dots collapsed
+  - [ ] REN-NAME-006: UNKNOWN used for missing date
+  - [ ] REN-NAME-007: .pdf extension appended
 
 ---
 
@@ -235,9 +264,19 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 #### Definition of Done
 
 - [ ] All deliverables implemented with @spec annotations
-- [ ] Phase specs verified: REN-UI-001 through REN-UI-010 (10 total)
 - [ ] Unit tests passing with mocked Prompts gem
 - [ ] Manual test of full UI flow
+- [ ] Phase specs verified:
+  - [ ] REN-UI-001: Display of original and suggested filenames
+  - [ ] REN-UI-002: Three options are presented
+  - [ ] REN-UI-003: Confirm action
+  - [ ] REN-UI-004: Edit prompt with suggested filename
+  - [ ] REN-UI-005: Validation of edited filename
+  - [ ] REN-UI-006: Error and re-prompt on invalid filename
+  - [ ] REN-UI-007: Skip action
+  - [ ] REN-UI-008: Manual input mode
+  - [ ] REN-UI-009: Validation in manual input mode
+  - [ ] REN-UI-010: Skip on empty manual input
 
 ---
 
@@ -273,10 +312,15 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 #### Definition of Done
 
 - [ ] All deliverables implemented with @spec annotations
-- [ ] Phase specs verified: REN-FILE-001 through REN-FILE-003, REN-PROC-001, REN-PROC-002 (5 total)
 - [ ] All unit tests passing
 - [ ] Integration tests passing
 - [ ] Manual end-to-end test with real PDFs
+- [ ] Phase specs verified:
+  - [ ] REN-FILE-001: File is renamed correctly
+  - [ ] REN-FILE-002: Overwrite confirmation prompt
+  - [ ] REN-FILE-003: File stays in same directory
+  - [ ] REN-PROC-001: All non-conforming PDFs are processed
+  - [ ] REN-PROC-002: Ctrl+C exits immediately
 
 ---
 
