@@ -1,0 +1,34 @@
+Invoice
+
+Sals Landscaping
+418 Lancaster Way
+Redwood City, CA 94062
+650-333-4373
+CSLB#868875
+
+Date
+
+Invoice #
+
+2/27/2025
+
+12950
+
+Bill To
+Davis & Christina Frank
+1540 Balboa Avenue
+Burlingame, CA
+
+Description
+
+Amount
+
+Monthly Maintenance-February 2025
+
+180.00
+
+Total
+
+$180.00
+
+

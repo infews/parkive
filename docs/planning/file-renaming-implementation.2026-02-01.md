@@ -1,8 +1,8 @@
 # File Renaming Implementation Plan
 
 **Created**: 2026-02-01
-**Status**: Planning
-**Design Doc**: `/docs/llds/file-renaming.md`
+**Status**: In Progress (Phase 4)
+**Design Docs**: `/docs/llds/file-renaming.md`, `/docs/llds/field-extractor.md`, `/docs/llds/name-suggestor.md`
 **EARS Specs**: `/docs/specs/file-renaming-specs.md`
 
 ## Overview
@@ -140,18 +140,20 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 
 **Goal**: Use Ollama to extract structured fields from PDF text.
 
+**Design Doc**: `/docs/llds/field-extractor.md`
+
 #### Deliverables
 
 1. **FieldExtractor Class**
-   - **Specs**: REN-LLM-001 through REN-LLM-008
+   - **Specs**: REN-LLM-001 through REN-LLM-007
    - `lib/parkive/field_extractor.rb`
-   - Send prompt to Ollama via ruby-llm gem
-   - Parse JSON response with fields: date, credit_card, vendor, account_number, invoice_number, type, other
+   - Send prompt to Ollama via direct HTTP (`Net::HTTP`) to `/api/generate`
+   - Model: `llama3.1:8b`
+   - Parse JSON response with fields: date, credit_card, vendor, account_number, invoice_number
    - Retry logic (up to 3 times)
-   - Handle incomplete fields with `UNKNOWN`
    - Verbose output for raw response and retries
 
-2. **ExtractionResult Struct**
+2. **ExtractionResult Struct** (optional)
    - Data structure for extraction results
    - `complete?` method to check if required fields are present
 
@@ -162,24 +164,22 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 - **REN-LLM-003**: Test successful JSON parsing of all fields
 - **REN-LLM-004**: Test retry on invalid JSON
 - **REN-LLM-005**: Test fallback after 3 retries
-- **REN-LLM-006**: Test UNKNOWN placeholder for missing fields
-- **REN-LLM-007**: Test verbose raw response output
-- **REN-LLM-008**: Test verbose retry attempt output
+- **REN-LLM-006**: Test verbose raw response output
+- **REN-LLM-007**: Test verbose retry attempt output
 
 #### Definition of Done
 
-- [ ] All deliverables implemented with @spec annotations
-- [ ] Unit tests passing with mocked Ollama responses
+- [x] All deliverables implemented with @spec annotations
+- [x] Unit tests passing with mocked Ollama responses
 - [ ] Manual test with real Ollama instance
-- [ ] Phase specs verified:
+- [x] Phase specs verified:
   - [x] REN-LLM-001: Ollama communication with correct model
   - [x] REN-LLM-002: JSON format in request includes all fields
-  - [ ] REN-LLM-003: Successful JSON parsing of all fields
-  - [ ] REN-LLM-004: Retry on invalid JSON
-  - [ ] REN-LLM-005: Fallback after 3 retries
-  - [ ] REN-LLM-006: UNKNOWN placeholder for missing fields
-  - [ ] REN-LLM-007: Verbose raw response output
-  - [ ] REN-LLM-008: Verbose retry attempt output
+  - [x] REN-LLM-003: Successful JSON parsing of all fields
+  - [x] REN-LLM-004: Retry on invalid JSON
+  - [x] REN-LLM-005: Fallback after 3 retries
+  - [x] REN-LLM-006: Verbose raw response output
+  - [x] REN-LLM-007: Verbose retry attempt output
 
 ---
 
@@ -187,12 +187,14 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 
 **Goal**: Build suggested filenames from extracted fields.
 
+**Design Doc**: `/docs/llds/name-suggestor.md`
+
 #### Deliverables
 
 1. **NameSuggestor Class**
    - **Specs**: REN-NAME-001 through REN-NAME-007
    - `lib/parkive/name_suggestor.rb`
-   - Build filename from fields in order: date, credit_card, vendor, account_number, invoice_number, type, other
+   - Build filename from fields in order: date, credit_card, vendor, account_number, invoice_number
    - Omit empty fields
    - Replace whitespace with dots
    - Remove filesystem-unsafe characters
@@ -328,11 +330,11 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 | Phase 1: CLI and Dependencies | REN-CLI-001 to 006 | 6 |
 | Phase 2: Directory Scanner | REN-SCAN-001 to 004, REN-PROC-003 | 5 |
 | Phase 3: Text Extraction | REN-TEXT-001 to 002 | 2 |
-| Phase 4: LLM Field Extraction | REN-LLM-001 to 008 | 8 |
+| Phase 4: LLM Field Extraction | REN-LLM-001 to 007 | 7 |
 | Phase 5: Name Suggestor | REN-NAME-001 to 007 | 7 |
 | Phase 6: User Confirmation | REN-UI-001 to 010 | 10 |
 | Phase 7: Integration | REN-FILE-001 to 003, REN-PROC-001 to 002 | 5 |
-| **Total** | | **43** |
+| **Total** | | **42** |
 
 ## Risk Assessment
 
@@ -358,5 +360,7 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 ## References
 
 - [High-Level Design](/docs/high-level-design.md)
-- [Low-Level Design](/docs/llds/file-renaming.md)
+- [File Renaming LLD](/docs/llds/file-renaming.md)
+- [Field Extractor LLD](/docs/llds/field-extractor.md)
+- [Name Suggestor LLD](/docs/llds/name-suggestor.md)
 - [EARS Specifications](/docs/specs/file-renaming-specs.md)

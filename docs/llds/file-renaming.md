@@ -55,61 +55,20 @@ If not found, exit with a message telling the user to install it.
 
 ### LLM Field Extractor
 
+See [Field Extractor LLD](/docs/llds/field-extractor.md) for detailed design.
+
 **Responsibility:** Extract structured fields from PDF text using Ollama.
 
 **Input:** String containing PDF text
 
-**Output:** Hash with keys:
-- `:date` (required) - Statement date in YYYY.MM.DD format
-- `:credit_card` (optional) - Card type (e.g., "Visa", "Master Card")
-- `:vendor` (optional) - Bank or provider name
-- `:account_number` (optional) - Account identifier
-- `:invoice_number` (optional) - Invoice identifier
-- `:type` (optional) - Document type (e.g., "Bill", "Statement")
-- `:other` (optional) - Any other relevant information
+**Output:** Hash with keys: `date`, `credit_card`, `vendor`, `account_number`, `invoice_number`
 
-**Implementation:**
-- Use the `ruby-llm` gem to communicate with Ollama
-- Model: `llama3.1:8b`
-- Request JSON output format
+**Key behaviors:**
+- Uses the `llama3.1:8b` model via direct HTTP to Ollama API
+- Retries up to 3 times on invalid JSON
+- Returns `nil` when all retries fail (triggers manual input flow)
 
-**Prompt structure:**
-```
-Extract the following from this document text. Return ALL fields, using empty string "" for any field not found.
-
-Required:
-- date: The statement/document date in YYYY.MM.DD format
-
-Optional:
-- credit_card: Card type if this is a credit card statement (e.g., "Visa", "Master Card", "American Express")
-- vendor: The bank or provider name (e.g., "Fidelity", "Health Equity", "City of Burlingame")
-- account_number: Account number if present
-- invoice_number: Invoice number if present
-- type: Document type (e.g., "Bill", "Statement", "Escrow Statement")
-- other: Any other relevant identifying information
-
-Return ONLY valid JSON in this exact format:
-{"date": "YYYY.MM.DD", "credit_card": "", "vendor": "", "account_number": "", "invoice_number": "", "type": "", "other": ""}
-
-Document text:
----
-{text}
----
-```
-
-**Dependency checks:** Before processing any files:
-1. Check if Ollama is installed: `system("which ollama > /dev/null 2>&1")`
-2. Check if Ollama is running: `system("ollama list > /dev/null 2>&1")`
-
-If not installed, tell user to install and run `ollama pull llama3.1:8b`.
-If not running, tell user to start Ollama.
-
-**Response parsing:**
-1. Attempt to parse response as JSON
-2. If parsing fails, retry up to 3 times
-3. If all retries fail, return nil (triggers manual input flow)
-
-**Incomplete fields:** If JSON is valid but a field is missing or empty, use `"UNKNOWN"` as placeholder.
+**Dependency checks:** Before processing, verify Ollama is installed and running.
 
 ### Name Suggestor
 
@@ -182,7 +141,7 @@ Represents the output of LLM extraction:
 ```ruby
 ExtractionResult = Struct.new(
   :date, :credit_card, :vendor, :account_number,
-  :invoice_number, :type, :other, :raw_response,
+  :invoice_number, :raw_response,
   keyword_init: true
 ) do
   def complete?
@@ -195,9 +154,7 @@ ExtractionResult = Struct.new(
       credit_card: credit_card,
       vendor: vendor,
       account_number: account_number,
-      invoice_number: invoice_number,
-      type: type,
-      other: other
+      invoice_number: invoice_number
     }
   end
 end
@@ -225,7 +182,7 @@ RenameDecision = Struct.new(:action, :filename, keyword_init: true)
 | Commands | All PDFs already conform | Exit with "all files already named" message |
 | Text Extraction | PDF has no text layer | Skip file, report to user, continue to next |
 | LLM Extraction | Invalid JSON (retries exhausted) | Fall back to manual input |
-| LLM Extraction | Incomplete fields | Use UNKNOWN placeholders |
+| LLM Extraction | Incomplete fields | Empty strings are fine; NameSuggestor handles |
 | User Confirmation | User chooses Skip | Move to next file |
 | User Confirmation | User aborts (Ctrl+C) | Exit immediately |
 | File Rename | Target exists | Prompt for overwrite confirmation |
@@ -325,7 +282,6 @@ Parkive::RenamePrompter
 |------------|------|---------|
 | `poppler` | Gem | Ruby bindings for PDF text extraction |
 | `pdftotext` | CLI tool | Poppler command-line tool (must be installed separately) |
-| `ruby-llm` | Gem | LLM client for Ollama communication |
 | `ollama` | CLI tool | Local LLM server (must be installed and running) |
 | `prompts` | Gem | User input handling (already used by other commands) |
 
@@ -335,7 +291,7 @@ Parkive::RenamePrompter
 
 1. **Processing order** - Order does not matter (decided in HLD)
 2. **Abort handling** - Exit immediately, no special handling (decided in HLD)
-3. **Incomplete extraction** - Use UNKNOWN placeholders (decided in HLD)
+3. **Incomplete extraction** - Empty strings are fine; NameSuggestor handles missing date
 4. **Malformed JSON** - Retry 3x, then manual input (decided in HLD)
 5. **Filename validation** - User-edited filenames must conform to the archivable pattern (`YYYY.MM.DD.*`). If invalid, show error and prompt again.
 6. **Case sensitivity** - `*.PDF` files are treated the same as `*.pdf`.
@@ -347,5 +303,7 @@ Parkive::RenamePrompter
 ## References
 
 - [High-Level Design](/docs/high-level-design.md)
+- [Field Extractor LLD](/docs/llds/field-extractor.md)
+- [Name Suggestor LLD](/docs/llds/name-suggestor.md)
 - [Poppler documentation](https://poppler.freedesktop.org/)
-- [ruby-llm gem](https://github.com/crmne/ruby-llm)
+- [Ollama API documentation](https://github.com/ollama/ollama/blob/main/docs/api.md)

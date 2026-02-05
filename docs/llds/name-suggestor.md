@@ -23,8 +23,6 @@ Hash of extracted fields from LLM:
 | `vendor` | No | "Fidelity", "City of Burlingame" |
 | `account_number` | No | "12345" |
 | `invoice_number` | No | "INV-2026-001" |
-| `type` | No | "Bill", "Statement" |
-| `other` | No | "Mortgage", "Lab Results" |
 
 ## Output
 
@@ -58,7 +56,7 @@ Empty fields are omitted entirely from the filename.
 Fields are concatenated in this order (empty fields skipped):
 
 ```
-{date}.{credit_card}.{vendor}.{account_number}.{invoice_number}.{type}.{other}.pdf
+{date}.{credit_card}.{vendor}.{account_number}.{invoice_number}.pdf
 ```
 
 ## Examples
@@ -67,8 +65,8 @@ Fields are concatenated in this order (empty fields skipped):
 |--------------|-----------------|
 | `date: "2026.01.31", vendor: "Fidelity", account_number: "12345"` | `2026.01.31.Fidelity.12345.pdf` |
 | `date: "2026.02.15", credit_card: "Visa", vendor: "Costco", account_number: "9876"` | `2026.02.15.Visa.Costco.9876.pdf` |
-| `date: "2026.03.01", vendor: "City of Burlingame", type: "Bill"` | `2026.03.01.City.of.Burlingame.Bill.pdf` |
-| `date: "2026.01.15", credit_card: "American Express", type: "Statement"` | `2026.01.15.American.Express.Statement.pdf` |
+| `date: "2026.03.01", vendor: "City of Burlingame", invoice_number: "INV-001"` | `2026.03.01.City.of.Burlingame.INV-001.pdf` |
+| `date: "2026.01.15", credit_card: "American Express", vendor: "Delta"` | `2026.01.15.American.Express.Delta.pdf` |
 | `date: "", vendor: "Unknown Corp"` | `UNKNOWN.Unknown.Corp.pdf` |
 
 ## Implementation
@@ -77,7 +75,7 @@ Fields are concatenated in this order (empty fields skipped):
 # @spec REN-NAME-001 through REN-NAME-005
 class NameSuggestor
   UNSAFE_CHARS = /[\/\\:*?"<>|]/
-  FIELD_ORDER = [:date, :credit_card, :vendor, :account_number, :invoice_number, :type, :other]
+  FIELD_ORDER = [:date, :credit_card, :vendor, :account_number, :invoice_number]
 
   def self.suggest(fields)
     parts = FIELD_ORDER
@@ -117,3 +115,4 @@ end
 
 - [High-Level Design](/docs/high-level-design.md)
 - [File Renaming LLD](/docs/llds/file-renaming.md)
+- [Field Extractor LLD](/docs/llds/field-extractor.md)

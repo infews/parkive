@@ -96,19 +96,19 @@ To extract the text, this uses the poppler command line tool and the Ruby popple
 
 #### Ollama
 
-To process the text, and find the useful text for the renaming, this uses Ollama with the `llama3.1:8b` model and the Ruby-llm gem. If Ollama is not present, the Thor command should stop and tell the user to install it and pull the model (`ollama pull llama3.1:8b`) before continuing. If Ollama is present but not running, the Thor command should stop and tell the user to run it before continuing.
+To process the text and find the useful text for the renaming, this uses Ollama with the `llama3.1:8b` model via direct HTTP requests to Ollama's API. If Ollama is not present, the Thor command should stop and tell the user to install it and pull the model (`ollama pull llama3.1:8b`) before continuing. If Ollama is present but not running, the Thor command should stop and tell the user to run it before continuing.
 
 #### Getting Text from the PDF
 
-At this point, it attempts to find text in the PDF. If there is no text in the PDF, it should stop and report this to the user.
+At this point, it attempts to find text in the PDF. If there is no text in the PDF, it should stop and report this to the user. This should use `pdftotext` from Poppler to extract the text.
 
 If there is text in the PDF, it should continue.
 
-#### Extracting Desired Fields from the Text
+#### Field Extractor
 
 This is the heart of the work. We have a PDF, it has a text layer, and now we need to use Ollama to find the desired information from the text.
 
-The script sends a prompt to Ollama, with the text, to attempt to extract:
+The script sends a prompt to Ollama using a local http request, with the text, to attempt to extract:
 
 ##### Required Fields
 
@@ -120,8 +120,6 @@ The script sends a prompt to Ollama, with the text, to attempt to extract:
 - The Vendor, which could be a Bank, or a provider (e.g, "Fidelity", "Health Equity", "City of Burlingame", "E*Trade", or "Costco")
 - The Account Number (e.g, "123652345")
 - The Invoice Number (e.g, "87865aXYZ")
-- Type Information (e.g, "Bill" or "Escrow Statement")
-- Other Information (e.g., "Mortgage" or "Lab Results")
 
 ##### Results JSON
 
@@ -134,8 +132,6 @@ The returned name should come back from Ollama as JSON of the form:
   "vendor": "Apple",
   "account_number": "132412352",
   "invoice_number": "1092317",
-  "type": "Statement",
-  "other": ""
 }
 ```
 That is, all fields should be present and should be strings. Any field where there is not a value should be an empty string.
@@ -144,7 +140,7 @@ That is, all fields should be present and should be strings. Any field where the
 
 **Malformed JSON response:** If Ollama returns invalid JSON, retry the request up to 3 times. If all retries fail, fall back to manual input - show the user the raw response and prompt them to enter the filename manually.
 
-**Incomplete extraction:** If Ollama returns valid JSON but one or more fields are missing or empty, use `UNKNOWN` as a placeholder for the missing fields. The user can then edit the suggested filename in the confirmation step.
+**Incomplete extraction:** If Ollama returns valid JSON but one or more fields are missing or empty, empty strings are acceptable. The NameSuggestor will omit empty fields from the filename. If the date is missing, the NameSuggestor uses `UNKNOWN` as a placeholder. The user can edit the suggested filename in the confirmation step.
 
 #### Name Suggestor
 
