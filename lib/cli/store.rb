@@ -10,10 +10,12 @@ module Parkive
     method_option :verbose, type: :boolean, default: false, desc: "Verbose output"
 
     def store(destination)
+      destination = File.expand_path(destination)
       raise NoDestinationDirectoryError.new(destination) unless Dir.exist?(destination)
 
+      source = File.expand_path(options[:source])
       Parkive::Commands.store(
-        source_paths: Dir.glob(File.join(options[:source], "*")).sort,
+        source_paths: Dir.glob(File.join(source, "*")).sort,
         archive_root: destination,
         prompt: Prompts::ConfirmPrompt,
         verbose: options[:verbose],

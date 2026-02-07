@@ -9,6 +9,7 @@ module Parkive
     method_option :verbose, type: :boolean, default: false, desc: "Verbose output"
 
     def rename(directory)
+      directory = File.expand_path(directory)
       raise NoSourceDirectoryError.new(directory) unless Dir.exist?(directory)
       raise PopplerNotInstalledError.new unless Dependencies.poppler_installed?
       raise OllamaNotInstalledError.new unless Dependencies.ollama_installed?
