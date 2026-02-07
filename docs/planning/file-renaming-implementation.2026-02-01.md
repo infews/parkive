@@ -213,17 +213,17 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 
 #### Definition of Done
 
-- [ ] All deliverables implemented with @spec annotations
-- [ ] Unit tests passing
+- [x] All deliverables implemented with @spec annotations
+- [x] Unit tests passing
 - [ ] Examples from LLD verified
-- [ ] Phase specs verified:
-  - [ ] REN-NAME-001: Field ordering in filename
-  - [ ] REN-NAME-002: Empty fields are omitted
-  - [ ] REN-NAME-003: Whitespace replaced with dots
-  - [ ] REN-NAME-004: Unsafe characters removed
-  - [ ] REN-NAME-005: Multiple dots collapsed
-  - [ ] REN-NAME-006: UNKNOWN used for missing date
-  - [ ] REN-NAME-007: .pdf extension appended
+- [x] Phase specs verified:
+  - [x] REN-NAME-001: Field ordering in filename
+  - [x] REN-NAME-002: Empty fields are omitted
+  - [x] REN-NAME-003: Whitespace replaced with dots
+  - [x] REN-NAME-004: Unsafe characters removed
+  - [x] REN-NAME-005: Multiple dots collapsed
+  - [x] REN-NAME-006: UNKNOWN used for missing date
+  - [x] REN-NAME-007: .pdf extension appended
 
 ---
 
@@ -262,20 +262,20 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 
 #### Definition of Done
 
-- [ ] All deliverables implemented with @spec annotations
-- [ ] Unit tests passing with mocked Prompts gem
+- [x] All deliverables implemented with @spec annotations
+- [x] Unit tests passing with mocked Prompts gem
 - [ ] Manual test of full UI flow
-- [ ] Phase specs verified:
-  - [ ] REN-UI-001: Display of original and suggested filenames
-  - [ ] REN-UI-002: Three options are presented
-  - [ ] REN-UI-003: Confirm action
-  - [ ] REN-UI-004: Edit prompt with suggested filename
-  - [ ] REN-UI-005: Validation of edited filename
-  - [ ] REN-UI-006: Error and re-prompt on invalid filename
-  - [ ] REN-UI-007: Skip action
-  - [ ] REN-UI-008: Manual input mode
-  - [ ] REN-UI-009: Validation in manual input mode
-  - [ ] REN-UI-010: Skip on empty manual input
+- [x] Phase specs verified:
+  - [x] REN-UI-001: Display of original and suggested filenames
+  - [x] REN-UI-002: Three options are presented
+  - [x] REN-UI-003: Confirm action
+  - [x] REN-UI-004: Edit prompt with suggested filename
+  - [x] REN-UI-005: Validation of edited filename
+  - [x] REN-UI-006: Error and re-prompt on invalid filename
+  - [x] REN-UI-007: Skip action
+  - [x] REN-UI-008: Manual input mode
+  - [x] REN-UI-009: Validation in manual input mode
+  - [x] REN-UI-010: Skip on empty manual input
 
 ---
 

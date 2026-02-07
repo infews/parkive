@@ -6,6 +6,8 @@ require_relative "parkive/dependencies"
 require_relative "parkive/directory_scanner"
 require_relative "parkive/text_extractor"
 require_relative "parkive/field_extractor"
+require_relative "parkive/name_suggestor"
+require_relative "parkive/rename_prompter"
 require_relative "cli"
 
 module Parkive
