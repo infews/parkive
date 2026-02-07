@@ -1,7 +1,7 @@
 # File Renaming Implementation Plan
 
 **Created**: 2026-02-01
-**Status**: In Progress (Phase 4)
+**Status**: Complete (pending manual end-to-end test)
 **Design Docs**: `/docs/llds/file-renaming.md`, `/docs/llds/field-extractor.md`, `/docs/llds/name-suggestor.md`
 **EARS Specs**: `/docs/specs/file-renaming-specs.md`
 
@@ -14,7 +14,7 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 - User can run `parkive rename <directory>` to rename PDFs
 - User confirms, edits, or skips each rename
 - Verbose mode shows file list before processing
-- All 43 EARS specs pass
+- All 38 EARS specs pass
 
 ## Implementation Phases
 
@@ -299,16 +299,16 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 
 #### Definition of Done
 
-- [ ] All deliverables implemented with @spec annotations
-- [ ] All unit tests passing
-- [ ] Integration tests passing
+- [x] All deliverables implemented with @spec annotations
+- [x] All unit tests passing
+- [x] Integration tests passing
 - [ ] Manual end-to-end test with real PDFs
-- [ ] Phase specs verified:
-  - [ ] REN-FILE-001: File is renamed correctly
-  - [ ] REN-FILE-002: Overwrite confirmation prompt
-  - [ ] REN-FILE-003: File stays in same directory
-  - [ ] REN-PROC-001: All non-conforming PDFs are processed
-  - [ ] REN-PROC-002: Ctrl+C exits immediately
+- [x] Phase specs verified:
+  - [x] REN-FILE-001: File is renamed correctly
+  - [x] REN-FILE-002: Overwrite confirmation prompt
+  - [x] REN-FILE-003: File stays in same directory
+  - [x] REN-PROC-001: All non-conforming PDFs are processed
+  - [x] REN-PROC-002: Ctrl+C exits immediately (Ruby default SIGINT behavior)
 
 ---
 

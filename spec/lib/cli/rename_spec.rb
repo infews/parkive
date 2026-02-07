@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "prompts"
 
 module Parkive
   RSpec.describe "Parkive::CLI#rename" do
@@ -76,6 +77,8 @@ module Parkive
           it "passes verbose mode to Commands.rename" do
             expect(Commands).to receive(:rename).with(
               directory: temp_dir,
+              prompt: Prompts::TextPrompt,
+              confirm_prompt: Prompts::ConfirmPrompt,
               verbose: true
             )
             CLI.new.invoke(:rename, [temp_dir], {verbose: true})
@@ -86,6 +89,8 @@ module Parkive
           it "passes verbose as false to Commands.rename" do
             expect(Commands).to receive(:rename).with(
               directory: temp_dir,
+              prompt: Prompts::TextPrompt,
+              confirm_prompt: Prompts::ConfirmPrompt,
               verbose: false
             )
             CLI.new.invoke(:rename, [temp_dir])

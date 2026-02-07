@@ -11,6 +11,7 @@ module Parkive
       end
     end
     let(:temp_dir) { @temp_dir }
+    let(:prompt_double) { double("Prompts::TextPrompt") }
 
     # @spec REN-SCAN-003
     describe "when no PDF files exist in the directory" do
@@ -21,7 +22,7 @@ module Parkive
 
       it "raises NoPDFsFoundError" do
         expect {
-          Commands.rename(directory: temp_dir)
+          Commands.rename(directory: temp_dir, prompt: prompt_double)
         }.to raise_error(NoPDFsFoundError, /no PDFs found/i)
       end
     end
@@ -35,7 +36,7 @@ module Parkive
 
       it "raises AllFilesConformingError" do
         expect {
-          Commands.rename(directory: temp_dir)
+          Commands.rename(directory: temp_dir, prompt: prompt_double)
         }.to raise_error(AllFilesConformingError, /all files already named/i)
       end
     end
@@ -46,17 +47,19 @@ module Parkive
         FileUtils.touch(File.join(temp_dir, "document.pdf"))
         FileUtils.touch(File.join(temp_dir, "bank-statement.pdf"))
         FileUtils.touch(File.join(temp_dir, "2026.01.15.Already.Named.pdf"))
+        # Stub out the processing to avoid needing full mocks
+        allow(TextExtractor).to receive(:extract).and_return(nil)
       end
 
       it "displays the list of files to be processed" do
         expect {
-          Commands.rename(directory: temp_dir, verbose: true)
+          Commands.rename(directory: temp_dir, prompt: prompt_double, verbose: true)
         }.to output(/document\.pdf.*bank-statement\.pdf|bank-statement\.pdf.*document\.pdf/m).to_stdout
       end
 
       it "does not display files that already conform" do
         expect {
-          Commands.rename(directory: temp_dir, verbose: true)
+          Commands.rename(directory: temp_dir, prompt: prompt_double, verbose: true)
         }.not_to output(/2026\.01\.15\.Already\.Named\.pdf/).to_stdout
       end
     end

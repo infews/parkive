@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "prompts"
+
 # @spec REN-CLI-001, REN-CLI-002, REN-CLI-003, REN-CLI-004, REN-CLI-005, REN-CLI-006
 module Parkive
   class CLI < Thor
@@ -14,6 +16,8 @@ module Parkive
 
       Commands.rename(
         directory: directory,
+        prompt: Prompts::TextPrompt,
+        confirm_prompt: Prompts::ConfirmPrompt,
         verbose: options[:verbose]
       )
     end
