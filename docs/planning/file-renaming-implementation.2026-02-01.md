@@ -229,36 +229,29 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 
 ### Phase 6: User Confirmation
 
-**Goal**: Implement the confirm/edit/skip UI flow.
+**Goal**: Implement the rename prompt UI using the Prompts gem.
 
 #### Deliverables
 
 1. **RenamePrompter Class**
-   - **Specs**: REN-UI-001 through REN-UI-010
+   - **Specs**: REN-UI-001 through REN-UI-006
    - `lib/parkive/rename_prompter.rb`
-   - Display original and suggested filenames
-   - Confirm/Edit/Skip selection
-   - Editable filename prompt
+   - Uses `Prompts::TextPrompt` with suggested filename as default
    - Validation against archivable pattern
-   - Manual input mode when LLM fails
-   - Skip on empty input in manual mode
+   - Empty input triggers skip
 
 2. **RenameDecision Struct**
    - Data structure for user decision
-   - Action (`:confirm`, `:edit`, `:skip`) and filename
+   - Action (`:rename`, `:skip`) and filename
 
 #### Testing Requirements
 
-- **REN-UI-001**: Test display of original and suggested filenames
-- **REN-UI-002**: Test three options are presented
-- **REN-UI-003**: Test confirm action
-- **REN-UI-004**: Test edit prompt with suggested filename
-- **REN-UI-005**: Test validation of edited filename
-- **REN-UI-006**: Test error and re-prompt on invalid filename
-- **REN-UI-007**: Test skip action
-- **REN-UI-008**: Test manual input mode
-- **REN-UI-009**: Test validation in manual input mode
-- **REN-UI-010**: Test skip on empty manual input
+- **REN-UI-001**: Test editable prompt with original filename and suggested as default
+- **REN-UI-002**: Test rename action when user accepts/edits filename
+- **REN-UI-003**: Test validation of filename pattern
+- **REN-UI-004**: Test error and re-prompt on invalid filename
+- **REN-UI-005**: Test skip on empty input
+- **REN-UI-006**: Test empty default when LLM extraction fails
 
 #### Definition of Done
 
@@ -266,16 +259,12 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 - [x] Unit tests passing with mocked Prompts gem
 - [ ] Manual test of full UI flow
 - [x] Phase specs verified:
-  - [x] REN-UI-001: Display of original and suggested filenames
-  - [x] REN-UI-002: Three options are presented
-  - [x] REN-UI-003: Confirm action
-  - [x] REN-UI-004: Edit prompt with suggested filename
-  - [x] REN-UI-005: Validation of edited filename
-  - [x] REN-UI-006: Error and re-prompt on invalid filename
-  - [x] REN-UI-007: Skip action
-  - [x] REN-UI-008: Manual input mode
-  - [x] REN-UI-009: Validation in manual input mode
-  - [x] REN-UI-010: Skip on empty manual input
+  - [x] REN-UI-001: Editable prompt with suggested as default
+  - [x] REN-UI-002: Rename action on accept/edit
+  - [x] REN-UI-003: Filename pattern validation
+  - [x] REN-UI-004: Error and re-prompt on invalid
+  - [x] REN-UI-005: Skip on empty input
+  - [x] REN-UI-006: Empty default when LLM fails
 
 ---
 
@@ -332,9 +321,9 @@ Implement the File Renaming feature, which extracts text from PDFs, uses Ollama 
 | Phase 3: Text Extraction | REN-TEXT-001 to 002 | 2 |
 | Phase 4: LLM Field Extraction | REN-LLM-001 to 007 | 7 |
 | Phase 5: Name Suggestor | REN-NAME-001 to 007 | 7 |
-| Phase 6: User Confirmation | REN-UI-001 to 010 | 10 |
+| Phase 6: User Confirmation | REN-UI-001 to 006 | 6 |
 | Phase 7: Integration | REN-FILE-001 to 003, REN-PROC-001 to 002 | 5 |
-| **Total** | | **42** |
+| **Total** | | **38** |
 
 ## Risk Assessment
 

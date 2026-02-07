@@ -4,181 +4,153 @@ require "spec_helper"
 
 module Parkive
   RSpec.describe RenamePrompter do
+    let(:prompt_double) { double("Prompts::TextPrompt") }
+
     # @spec REN-UI-001
-    describe "display" do
-      it "displays the original filename and suggested new filename" do
-        output = StringIO.new
+    describe "editable prompt with original and suggested" do
+      it "includes the original filename in the label" do
+        allow(prompt_double).to receive(:ask).and_return("2026.01.31.Test.pdf")
+
         prompter = RenamePrompter.new(
           original: "quarterly-statement.pdf",
           suggested: "2026.01.31.Fidelity.12345.pdf",
-          output: output,
-          input: StringIO.new("c\n")
+          prompt: prompt_double
         )
 
         prompter.prompt
 
-        expect(output.string).to include("quarterly-statement.pdf")
-        expect(output.string).to include("2026.01.31.Fidelity.12345.pdf")
+        expect(prompt_double).to have_received(:ask).with(
+          hash_including(label: /quarterly-statement\.pdf/)
+        )
+      end
+
+      it "passes suggested filename as default value" do
+        allow(prompt_double).to receive(:ask).and_return("2026.01.31.Test.pdf")
+
+        prompter = RenamePrompter.new(
+          original: "test.pdf",
+          suggested: "2026.01.31.Suggested.pdf",
+          prompt: prompt_double
+        )
+
+        prompter.prompt
+
+        expect(prompt_double).to have_received(:ask).with(
+          hash_including(default: "2026.01.31.Suggested.pdf")
+        )
       end
     end
 
     # @spec REN-UI-002
-    describe "options" do
-      it "offers three options: Confirm, Edit, and Skip" do
-        output = StringIO.new
+    describe "rename action" do
+      it "returns rename decision when user accepts suggested filename" do
+        allow(prompt_double).to receive(:ask).and_return("2026.01.31.Test.pdf")
+
         prompter = RenamePrompter.new(
           original: "test.pdf",
           suggested: "2026.01.31.Test.pdf",
-          output: output,
-          input: StringIO.new("c\n")
-        )
-
-        prompter.prompt
-
-        expect(output.string).to match(/\[C\]onfirm/i)
-        expect(output.string).to match(/\[E\]dit/i)
-        expect(output.string).to match(/\[S\]kip/i)
-      end
-    end
-
-    # @spec REN-UI-003
-    describe "confirm action" do
-      it "returns confirm decision with suggested filename when user chooses C" do
-        prompter = RenamePrompter.new(
-          original: "test.pdf",
-          suggested: "2026.01.31.Test.pdf",
-          output: StringIO.new,
-          input: StringIO.new("c\n")
+          prompt: prompt_double
         )
 
         decision = prompter.prompt
 
-        expect(decision.action).to eq(:confirm)
+        expect(decision.action).to eq(:rename)
         expect(decision.filename).to eq("2026.01.31.Test.pdf")
       end
-    end
 
-    # @spec REN-UI-004
-    describe "edit action" do
-      it "presents an editable prompt and returns edited filename" do
-        output = StringIO.new
+      it "returns rename decision with edited filename" do
+        allow(prompt_double).to receive(:ask).and_return("2026.01.31.Edited.pdf")
+
         prompter = RenamePrompter.new(
           original: "test.pdf",
-          suggested: "2026.01.31.Test.pdf",
-          output: output,
-          input: StringIO.new("e\n2026.01.31.Edited.pdf\n")
+          suggested: "2026.01.31.Original.pdf",
+          prompt: prompt_double
         )
 
         decision = prompter.prompt
 
-        expect(decision.action).to eq(:edit)
+        expect(decision.action).to eq(:rename)
         expect(decision.filename).to eq("2026.01.31.Edited.pdf")
       end
     end
 
-    # @spec REN-UI-005
+    # @spec REN-UI-003, REN-UI-004
     describe "filename validation" do
-      it "accepts filenames that conform to YYYY.MM.DD.* pattern" do
+      it "passes a validate lambda to the prompt" do
+        validate_lambda = nil
+        allow(prompt_double).to receive(:ask) do |args|
+          validate_lambda = args[:validate]
+          "2026.01.31.Test.pdf"
+        end
+
         prompter = RenamePrompter.new(
           original: "test.pdf",
           suggested: "2026.01.31.Test.pdf",
-          output: StringIO.new,
-          input: StringIO.new("e\n2026.02.15.Valid.Name.pdf\n")
+          prompt: prompt_double
+        )
+
+        prompter.prompt
+
+        # Valid filename returns nil (no error)
+        expect(validate_lambda.call("2026.01.31.Valid.pdf")).to be_nil
+
+        # Invalid filename returns error message
+        expect(validate_lambda.call("invalid.pdf")).to include("YYYY.MM.DD")
+
+        # Empty is allowed (for skip)
+        expect(validate_lambda.call("")).to be_nil
+      end
+    end
+
+    # @spec REN-UI-005
+    describe "skip action" do
+      it "returns skip decision when user clears input" do
+        allow(prompt_double).to receive(:ask).and_return("")
+
+        prompter = RenamePrompter.new(
+          original: "test.pdf",
+          suggested: "2026.01.31.Test.pdf",
+          prompt: prompt_double
         )
 
         decision = prompter.prompt
 
-        expect(decision.action).to eq(:edit)
-        expect(decision.filename).to eq("2026.02.15.Valid.Name.pdf")
+        expect(decision.action).to eq(:skip)
+        expect(decision.filename).to be_nil
+      end
+
+      it "returns skip decision when prompt returns nil" do
+        allow(prompt_double).to receive(:ask).and_return(nil)
+
+        prompter = RenamePrompter.new(
+          original: "test.pdf",
+          suggested: "2026.01.31.Test.pdf",
+          prompt: prompt_double
+        )
+
+        decision = prompter.prompt
+
+        expect(decision.action).to eq(:skip)
+        expect(decision.filename).to be_nil
       end
     end
 
     # @spec REN-UI-006
-    describe "invalid filename handling" do
-      it "displays error and re-prompts when filename does not conform" do
-        output = StringIO.new
-        prompter = RenamePrompter.new(
-          original: "test.pdf",
-          suggested: "2026.01.31.Test.pdf",
-          output: output,
-          input: StringIO.new("e\ninvalid-name.pdf\n2026.01.31.Valid.pdf\n")
-        )
-
-        decision = prompter.prompt
-
-        expect(output.string).to include("must start with")
-        expect(decision.filename).to eq("2026.01.31.Valid.pdf")
-      end
-    end
-
-    # @spec REN-UI-007
-    describe "skip action" do
-      it "returns skip decision with no filename when user chooses S" do
-        prompter = RenamePrompter.new(
-          original: "test.pdf",
-          suggested: "2026.01.31.Test.pdf",
-          output: StringIO.new,
-          input: StringIO.new("s\n")
-        )
-
-        decision = prompter.prompt
-
-        expect(decision.action).to eq(:skip)
-        expect(decision.filename).to be_nil
-      end
-    end
-
-    # @spec REN-UI-008
     describe "manual input mode" do
-      it "prompts for manual entry when suggested is nil" do
-        output = StringIO.new
+      it "passes empty string as default when suggested is nil" do
+        allow(prompt_double).to receive(:ask).and_return("2026.01.31.Manual.pdf")
+
         prompter = RenamePrompter.new(
           original: "test.pdf",
           suggested: nil,
-          output: output,
-          input: StringIO.new("2026.01.31.Manual.pdf\n")
+          prompt: prompt_double
         )
 
-        decision = prompter.prompt
+        prompter.prompt
 
-        expect(output.string).to include("Could not extract")
-        expect(decision.action).to eq(:edit)
-        expect(decision.filename).to eq("2026.01.31.Manual.pdf")
-      end
-    end
-
-    # @spec REN-UI-009
-    describe "manual input validation" do
-      it "displays error and re-prompts when manual entry does not conform" do
-        output = StringIO.new
-        prompter = RenamePrompter.new(
-          original: "test.pdf",
-          suggested: nil,
-          output: output,
-          input: StringIO.new("bad-name.pdf\n2026.01.31.Valid.pdf\n")
+        expect(prompt_double).to have_received(:ask).with(
+          hash_including(default: "")
         )
-
-        decision = prompter.prompt
-
-        expect(output.string).to include("must start with")
-        expect(decision.filename).to eq("2026.01.31.Valid.pdf")
-      end
-    end
-
-    # @spec REN-UI-010
-    describe "skip on empty manual input" do
-      it "returns skip decision when user presses Enter without input" do
-        prompter = RenamePrompter.new(
-          original: "test.pdf",
-          suggested: nil,
-          output: StringIO.new,
-          input: StringIO.new("\n")
-        )
-
-        decision = prompter.prompt
-
-        expect(decision.action).to eq(:skip)
-        expect(decision.filename).to be_nil
       end
     end
   end

@@ -43,16 +43,12 @@
 
 ## User Confirmation
 
-- **REN-UI-001**: The system shall display the original filename and suggested new filename.
-- **REN-UI-002**: The system shall offer three options: Confirm, Edit, and Skip.
-- **REN-UI-003**: When the user chooses Confirm, the system shall proceed with renaming using the suggested filename.
-- **REN-UI-004**: When the user chooses Edit, the system shall present an editable prompt with the suggested filename.
-- **REN-UI-005**: When the user submits an edited filename, the system shall validate it conforms to the archivable pattern (`YYYY.MM.DD.*`).
-- **REN-UI-006**: If the edited filename does not conform to the pattern, then the system shall display an error and prompt again.
-- **REN-UI-007**: When the user chooses Skip, the system shall leave the file unchanged and proceed to the next file.
-- **REN-UI-008**: When LLM extraction fails completely, the system shall prompt for manual filename entry.
-- **REN-UI-009**: If the manually entered filename does not conform to the pattern, then the system shall display an error and prompt again.
-- **REN-UI-010**: When in manual entry mode, if the user presses Enter without input, the system shall skip the file.
+- **REN-UI-001**: The system shall display an editable text prompt with the original filename and suggested name as the default value.
+- **REN-UI-002**: When the user accepts or edits the filename, the system shall proceed with renaming.
+- **REN-UI-003**: The system shall validate the filename conforms to the archivable pattern (`YYYY.MM.DD.*`).
+- **REN-UI-004**: If the filename does not conform to the pattern, then the system shall display an error and prompt again.
+- **REN-UI-005**: When the user clears the input, the system shall skip the file and proceed to the next.
+- **REN-UI-006**: When LLM extraction fails, the system shall prompt with an empty default value.
 
 ## File Renaming
 

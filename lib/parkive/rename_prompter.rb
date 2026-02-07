@@ -1,74 +1,38 @@
 # frozen_string_literal: true
 
-# @spec REN-UI-001
+# @spec REN-UI-001 through REN-UI-010
 module Parkive
   class RenamePrompter
     DATE_PATTERN = /^\d{4}\.\d{2}\.\d{2}\./
 
-    def initialize(original:, suggested:, output: $stdout, input: $stdin)
+    def initialize(original:, suggested:, prompt:)
       @original = original
       @suggested = suggested
-      @output = output
-      @input = input
+      @prompt = prompt
     end
 
-    # @spec REN-UI-002, REN-UI-003, REN-UI-004, REN-UI-008
     def prompt
-      @output.puts "Original:  #{@original}"
+      result = @prompt.ask(
+        label: "Rename #{@original} to:",
+        default: @suggested || "",
+        hint: "Press Enter to accept, edit to change, or clear to skip",
+        validate: ->(value) { validate_filename(value) }
+      )
 
-      # @spec REN-UI-008
-      if @suggested.nil?
-        @output.puts "Could not extract fields automatically."
-        @output.puts
-        return prompt_for_manual_entry
-      end
-
-      @output.puts "Suggested: #{@suggested}"
-      @output.puts
-      @output.puts "[C]onfirm  [E]dit  [S]kip"
-
-      choice = @input.gets.to_s.strip.downcase
-
-      case choice
-      when "c"
-        RenameDecision.new(action: :confirm, filename: @suggested)
-      when "e"
-        prompt_for_filename
-      when "s"
+      if result.nil? || result.empty?
         RenameDecision.new(action: :skip, filename: nil)
       else
-        RenameDecision.new(action: :confirm, filename: @suggested)
+        RenameDecision.new(action: :rename, filename: result)
       end
     end
 
     private
 
-    # @spec REN-UI-005, REN-UI-006, REN-UI-010
-    def prompt_for_filename(allow_empty_skip: false)
-      loop do
-        @output.print "Enter new filename: "
-        new_filename = @input.gets.to_s.strip
+    def validate_filename(filename)
+      return nil if filename.nil? || filename.empty? # Allow empty to skip
+      return nil if filename.match?(DATE_PATTERN)    # Valid format
 
-        # @spec REN-UI-010
-        if allow_empty_skip && new_filename.empty?
-          return RenameDecision.new(action: :skip, filename: nil)
-        end
-
-        if valid_filename?(new_filename)
-          return RenameDecision.new(action: :edit, filename: new_filename)
-        else
-          @output.puts "Error: Filename must start with YYYY.MM.DD format"
-        end
-      end
-    end
-
-    def valid_filename?(filename)
-      filename.match?(DATE_PATTERN)
-    end
-
-    # @spec REN-UI-008, REN-UI-010
-    def prompt_for_manual_entry
-      prompt_for_filename(allow_empty_skip: true)
+      "Filename must start with YYYY.MM.DD format"
     end
   end
 

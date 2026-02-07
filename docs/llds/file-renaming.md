@@ -86,34 +86,33 @@ See [Name Suggestor LLD](/docs/llds/name-suggestor.md) for detailed design.
 
 **Input:**
 - Original filename
-- Suggested new filename (constructed from extracted fields)
+- Suggested new filename (constructed from extracted fields, or nil if extraction failed)
+- Prompt class (injected, e.g., `Prompts::TextPrompt`)
 
-**Output:** One of:
-- `:confirm` with the suggested filename
-- `:edit` with user-modified filename
-- `:skip`
+**Output:** `RenameDecision` struct with:
+- `:rename` action with filename, or
+- `:skip` action with nil filename
 
-**Implementation:** Use the `Prompts` gem (same as other commands).
+**Implementation:** Use the `Prompts` gem with `TextPrompt.ask()`.
 
-**Display format:**
-```
-Original:  quarterly-statement-jan.pdf
-Suggested: 2026.01.31.WellsFargo.1234.pdf
-
-[C]onfirm  [E]dit  [S]kip
-```
-
-**Edit flow:** If user chooses Edit, present the suggested filename in an editable prompt. Validate that the result conforms to the archivable pattern (starts with `YYYY.MM.DD`). If it doesn't, show an error and prompt the user to edit again.
-
-**Manual input flow:** When LLM extraction completely fails (after retries), show:
-```
-Original:  quarterly-statement-jan.pdf
-Could not extract fields automatically.
-
-Enter new filename (or press Enter to skip):
+```ruby
+result = prompt.ask(
+  label: "Rename #{original} to:",
+  default: suggested || "",
+  hint: "Press Enter to accept, edit to change, or clear to skip",
+  validate: ->(value) { validate_filename(value) }
+)
 ```
 
-The same validation applies: if the entered filename doesn't conform to the archivable pattern, show an error and prompt again.
+**User flow:**
+- Suggested filename appears as editable default
+- Press Enter to accept the suggested name
+- Edit the text to change the filename
+- Clear the input (empty) to skip the file
+
+**Validation:** The `validate` lambda ensures the filename conforms to `YYYY.MM.DD.*` pattern. Empty input is allowed (triggers skip).
+
+**Manual input flow:** When LLM extraction fails, `suggested` is nil, so the default is empty. User must type a valid filename or press Enter to skip.
 
 ### File Renamer
 
@@ -166,8 +165,8 @@ Represents user's choice at confirmation:
 
 ```ruby
 RenameDecision = Struct.new(:action, :filename, keyword_init: true)
-# action is one of: :confirm, :edit, :skip
-# filename is present for :confirm and :edit, nil for :skip
+# action is one of: :rename, :skip
+# filename is present for :rename, nil for :skip
 ```
 
 ## Error Handling Strategy
@@ -183,7 +182,7 @@ RenameDecision = Struct.new(:action, :filename, keyword_init: true)
 | Text Extraction | PDF has no text layer | Skip file, report to user, continue to next |
 | LLM Extraction | Invalid JSON (retries exhausted) | Fall back to manual input |
 | LLM Extraction | Incomplete fields | Empty strings are fine; NameSuggestor handles |
-| User Confirmation | User chooses Skip | Move to next file |
+| User Confirmation | User clears input (empty) | Skip file, move to next |
 | User Confirmation | User aborts (Ctrl+C) | Exit immediately |
 | File Rename | Target exists | Prompt for overwrite confirmation |
 
@@ -217,7 +216,7 @@ module Parkive
 
       Parkive::Commands.rename(
         directory: directory,
-        prompt: Prompts::SelectPrompt,  # or appropriate Prompts class
+        prompt: Prompts::TextPrompt,
         verbose: options[:verbose]
       )
     end
