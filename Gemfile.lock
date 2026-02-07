@@ -1,8 +1,18 @@
+GIT
+  remote: https://github.com/infews/prompts.git
+  revision: 232eaa31c130e09659afb1e7a99172566ee0b0ad
+  specs:
+    prompts (0.3.1)
+      fmt (>= 0.3.0)
+      rainbow
+      reline
+      unicode-display_width
+      unicode-emoji
+
 PATH
   remote: .
   specs:
     parkive (0.1.0)
-      prompts
       ruby_llm
       thor
 
@@ -55,12 +65,6 @@ GEM
       prettyprint
     prettyprint (0.2.0)
     prism (1.9.0)
-    prompts (0.3.1)
-      fmt (>= 0.3.0)
-      rainbow
-      reline
-      unicode-display_width
-      unicode-emoji
     pry (0.16.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -153,6 +157,7 @@ DEPENDENCIES
   bundler (>= 2.0)
   debug
   parkive!
+  prompts!
   pry
   pry-byebug
   rake

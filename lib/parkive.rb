@@ -1,3 +1,6 @@
+require "prompts"
+Prompts.clear_screen = false
+
 require_relative "parkive/version"
 require_relative "parkive/commands"
 require_relative "parkive/archivable_pathname"

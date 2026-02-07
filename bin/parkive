@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 require "rubygems"
 
-libdir = File.join( __dir__, "..", "lib")
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path("../Gemfile", __dir__)
+require "bundler/setup"
+
+libdir = File.join(__dir__, "..", "lib")
 $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
 
 require "parkive"
