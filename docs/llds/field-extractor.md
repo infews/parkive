@@ -1,7 +1,8 @@
 # Field Extractor
 
 **Created**: 2026-02-03
-**Status**: Design Phase (Partial Implementation)
+**Updated**: 2026-02-08
+**Status**: Implemented
 
 ## Context and Design Philosophy
 
@@ -9,15 +10,44 @@ The Field Extractor is the heart of the file renaming feature. It takes raw text
 
 **Guiding principles:**
 - **Local processing** - All LLM work happens on-device via Ollama; no cloud APIs
-- **Structured extraction** - Request specific fields in a predictable JSON format
-- **Graceful degradation** - Invalid responses trigger retries; complete failure falls back to manual input
+- **Schema-constrained output** - A JSON schema enforces the output format at the token level, eliminating most format errors
+- **Simplified prompt** - The prompt focuses on *what* to extract; the schema handles *how* to format it
+- **Few-shot examples** - Improve extraction accuracy for known document types
+- **Graceful degradation** - Failed extraction falls back to manual input
 - **Transparency** - Verbose mode exposes the raw LLM response for debugging
+
+## Architecture
+
+The Field Extractor uses **RubyLLM** with a **`DocumentFieldsSchema`** to extract structured fields. RubyLLM connects to Ollama's OpenAI-compatible API (`/v1/chat/completions`) and passes the schema as a `response_format` constraint. Ollama uses GBNF grammars to constrain token generation to match the JSON schema.
+
+```
+FieldExtractor.extract(text)
+  → RubyLLM.chat(model, provider: :ollama)
+    → .with_temperature(0)
+    → .with_schema(DocumentFieldsSchema)
+    → .ask(prompt + text)
+      → Ollama /v1/chat/completions (with response_format: json_schema)
+      → Returns parsed Hash automatically
+```
+
+### Why RubyLLM + Schema?
+
+The previous approach used raw `Net::HTTP` to call Ollama's `/api/generate` endpoint with a hand-crafted prompt that included JSON format instructions. This required:
+- Manual HTTP plumbing (~20 lines)
+- Prompt engineering for format ("Return ONLY valid JSON, no other text")
+- Response parsing (regex to strip markdown fences, extract JSON)
+- Retry logic for format errors
+
+The schema approach moves format enforcement from the prompt into the API layer. The result is simpler code (~90 lines vs ~150) and ~5x faster execution (the prompt is smaller without format instructions, and the OpenAI-compatible endpoint is faster than `/api/generate`).
 
 ## Model Selection
 
 **Model**: `qwen2.5:14b`
 
-This is a capable model that follows structured extraction instructions well. It requires explicit prompting with examples to return JSON in the expected format.
+Selected through experimentation:
+- **qwen2.5:14b** - Best accuracy (7/7 fixtures), good speed (~22s avg). Strong general reasoning about financial documents.
+- **llama3.1:8b** - Faster (~10s avg) but less accurate (6/7). Struggles with date extraction on some documents.
+- **nuextract:latest** - Specialized extraction model but not suited for this use case. Cannot convert date formats and fails on longer documents.
 
 ## Input
 
@@ -30,275 +60,148 @@ A Hash with the following keys (all values are strings):
 | Field | Required | Description | Example |
 |-------|----------|-------------|---------|
 | `date` | Yes | Statement/document date in `YYYY.MM.DD` format | `"2026.01.31"` |
-| `credit_card` | No | Card type for credit card statements | `"Visa"`, `"Master Card"`, `"American Express"` |
-| `vendor` | No | Bank, company, or provider name | `"Fidelity"`, `"City of Burlingame"` |
-| `account_number` | No | Account identifier | `"12345"`, `"****9876"` |
-| `invoice_number` | No | Invoice or reference number | `"INV-2026-001"` |
+| `credit_card` | Yes | Card network (not product name) for credit card statements | `"Visa"`, `"American Express"` |
+| `vendor` | Yes | Brand/product name on the statement | `"Delta SkyMiles"`, `"Fidelity"` |
+| `account_number` | Yes | Primary account identifier (no sub-account suffixes) | `"12345"`, `"520-291109"` |
+| `invoice_number` | Yes | Invoice or reference number | `"12950"` |
 
 All fields are always present in the output. Missing values are represented as empty strings `""`.
 
+## Schema Definition
+
+The `DocumentFieldsSchema` defines the output structure using RubyLLM's Schema DSL:
+
+```ruby
+class DocumentFieldsSchema < RubyLLM::Schema
+  description "Structured fields extracted from a financial document or invoice"
+
+  string :date,
+    description: "Statement or document date in YYYY.MM.DD format..."
+
+  string :credit_card,
+    description: "Credit card network or issuer: 'Visa', 'American Express'..."
+
+  string :vendor,
+    description: "The brand or product name on the statement..."
+
+  string :account_number,
+    description: "Primary account number, omit trailing sub-account suffixes..."
+
+  string :invoice_number,
+    description: "Invoice number with whitespace removed..."
+end
+```
+
+The schema serves two purposes:
+1. **Format enforcement** - Ollama constrains token generation to produce valid JSON matching this schema
+2. **Field guidance** - The description on each field helps the model understand what to extract
+
+### Key schema design decisions
+
+- **credit_card** is the payment *network* (American Express, Visa), not the card *product name* (Delta SkyMiles Reserve Card). This distinction required explicit description language.
+- **account_number** omits trailing sub-account suffixes like "-201". This was taught via few-shot examples.
+- All fields are required (always present), with empty string for missing values.
+
 ## Prompt Design
 
-The prompt uses explicit instructions to request structured JSON output. Key insight: LLMs often ignore date format instructions unless given explicit conversion examples.
+With the schema handling format enforcement, the prompt focuses purely on extraction instructions:
 
 ```
-You are a document field extractor. Extract fields from the document below and return JSON.
+Extract the key fields from this financial document.
 
-IMPORTANT DATE FORMAT RULE:
-The date field MUST use format YYYY.MM.DD (4-digit year DOT 2-digit month DOT 2-digit day).
-If document shows "02/17/25" or "February 17, 2025", convert to "2025.02.17".
-If document shows "Closing Date 02/17/25", the year is 2025, so output "2025.02.17".
+Date format: Convert all dates to YYYY.MM.DD format.
+- "02/17/25" becomes "2025.02.17"
+- "February 17, 2025" becomes "2025.02.17"
+- Use the statement closing date, not today's date.
 
-Fields to extract:
-- date: Statement/closing date in YYYY.MM.DD format (REQUIRED)
-- credit_card: Card type like "Visa", "American Express" (if applicable)
-- vendor: Company name like "Fidelity", "E*Trade", "Delta"
-- account_number: Account number if present
-- invoice_number: Invoice number if present
+Use empty string "" for any field not found in the document.
 
-Use empty string "" for fields not found. Return ONLY valid JSON, no other text.
+For credit card statements: credit_card is the payment NETWORK (American Express, Visa, Mastercard),
+not the card product name. The card product name (e.g. Delta SkyMiles) goes in vendor.
 
-Example output:
-{"date": "2025.02.17", "credit_card": "American Express", "vendor": "Delta", "account_number": "6-02008", "invoice_number": ""}
+Examples:
+[Few-shot examples from lib/parkive/examples/]
 
-Document:
+Document to extract from:
 ---
 {text}
 ---
 ```
 
 **Key prompt elements:**
-- Role assignment ("You are a document field extractor")
-- Explicit date format conversion rule with examples
-- Realistic example output with actual values
-- Document text delimited by `---` markers
+- Date conversion rules with examples (LLMs ignore format instructions without examples)
+- Explicit credit card network vs product name distinction
+- Few-shot examples showing expected outputs for real documents
+- No JSON format instructions (schema handles this)
 
-## Response Parsing
+## Few-Shot Examples
 
-The LLM response may contain:
-- Clean JSON
-- JSON wrapped in markdown code fences (` ```json ... ``` `)
-- JSON embedded in explanatory text
+Examples are loaded from `lib/parkive/examples/` and included in the prompt. Each shows a truncated document (first 200 chars) and the expected output.
 
-**Parsing steps:**
-1. Strip leading/trailing whitespace
-2. Remove markdown code fences if present
-3. Extract the first JSON object using regex: `/\{[^{}]*\}/`
-4. Parse as JSON
+| Example | Document Type | Key Fields |
+|---------|---------------|------------|
+| amex | Credit card statement | credit_card: "American Express", vendor: "Delta SkyMiles" |
+| apple | Credit card statement | credit_card: "Apple Card", vendor: "Goldman" |
+| etrade | Brokerage statement | vendor: "E*Trade", account_number: "520-291109" |
+| etrade_2 | Brokerage statement | vendor: "E*Trade", account_number: "520-852519" |
+| sal | Invoice | vendor: "Sals Landscaping", invoice_number: "12950" |
 
-**Error handling:**
-- If parsing fails, return an error hash: `{ error: "...", raw: "...", message: "..." }`
+Examples are critical for accuracy. Without them, the model misidentifies fields (e.g., swapping credit_card and vendor) and includes unwanted suffixes in account numbers.
 
 ## Retry Logic
 
-When the LLM returns invalid JSON:
+When the LLM returns a response that isn't a valid Hash:
 
-1. Retry the same request up to 3 times total
-2. Each retry uses the same prompt (no modifications)
+1. Attempt to parse it as a JSON string (fallback for edge cases)
+2. If that fails, retry the same request up to 3 times total
 3. If all retries fail, return `nil` to signal fallback to manual input
 
-**Verbose mode**: Display each retry attempt number.
-
-## Incomplete Field Handling
-
-When JSON is valid but fields are missing or empty:
-
-- Empty strings are acceptable for optional fields
-- The NameSuggestor handles missing fields by omitting them from the filename
-- If the `date` field is missing/empty, NameSuggestor uses `"UNKNOWN"` as the date portion
-- This is handled downstream, not in FieldExtractor
+With schema enforcement, format errors are rare. Retries primarily guard against network failures or edge-case model behavior.
 
 ## Error Conditions
 
 | Condition | Response |
 |-----------|----------|
-| LLM returns valid JSON | Return parsed hash |
-| LLM returns invalid JSON | Retry up to 3 times |
+| LLM returns valid Hash | Return normalized hash |
+| LLM returns parseable JSON string | Parse and return normalized hash |
+| LLM returns unparseable response | Retry up to 3 times |
 | All retries exhausted | Return `nil` (triggers manual input) |
-| Network/connection error | Raise exception (handled by CLI layer) |
+| Network/connection error | Retry up to 3 times, then return `nil` |
 
 ## Verbose Output
 
 When verbose mode is enabled:
-- Display the raw LLM response before parsing
-- Display retry attempt numbers (e.g., "Retry 2/3...")
+- Display the raw LLM response before normalization
+- Display retry attempt numbers and error messages
 
-## Implementation
-
-Uses Ollama's HTTP API directly via `Net::HTTP`. No external LLM gems required.
-
-### Ollama API
-
-Ollama exposes a REST API at `http://localhost:11434`. We use the `/api/generate` endpoint:
-
-```
-POST http://localhost:11434/api/generate
-Content-Type: application/json
-
-{
-  "model": "qwen2.5:14b",
-  "prompt": "...",
-  "stream": false,
-  "options": {
-    "temperature": 0,
-    "num_ctx": 16384
-  }
-}
-```
-
-**Response:**
-```json
-{
-  "response": "...",
-  "done": true
-}
-```
-
-### Ruby Implementation
+## RubyLLM Configuration
 
 ```ruby
-require "net/http"
-require "json"
-require "uri"
-
-# @spec REN-LLM-001 through REN-LLM-007
-module Parkive
-  class FieldExtractor
-    OLLAMA_URL = "http://localhost:11434/api/generate"
-    MODEL = "qwen2.5:14b"
-    MAX_RETRIES = 3
-
-    def self.extract(text, verbose: false)
-      attempts = 0
-
-      loop do
-        attempts += 1
-        response = send_prompt(text)
-        puts "Raw Ollama response: #{response}" if verbose
-
-        result = parse_response(response)
-        return result unless result.key?(:error) || result.key?("error")
-
-        puts "Retry attempt #{attempts} failed: invalid JSON" if verbose && attempts < MAX_RETRIES
-        return nil if attempts >= MAX_RETRIES
-      end
-    end
-
-    def self.send_prompt(text)
-      uri = URI(OLLAMA_URL)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.read_timeout = 120  # LLM responses can be slow
-
-      request = Net::HTTP::Post.new(uri)
-      request["Content-Type"] = "application/json"
-      request.body = {
-        model: MODEL,
-        prompt: build_prompt(text),
-        stream: false,
-        options: { temperature: 0, num_ctx: 16384 }
-      }.to_json
-
-      response = http.request(request)
-      JSON.parse(response.body)["response"]
-    end
-
-    def self.parse_response(content)
-      cleaned = content.strip.gsub(/```json\s*/, "").gsub(/```\s*/, "")
-
-      json_str = if (match = cleaned.match(/\{[^{}]*\}/))
-        match[0]
-      else
-        cleaned
-      end
-
-      JSON.parse(json_str)
-    rescue JSON::ParserError => e
-      { error: "Failed to parse response", raw: content, message: e.message }
-    end
-
-    def self.build_prompt(text)
-      # Uses few-shot examples loaded from lib/parkive/examples/
-      <<~PROMPT
-        You are a document field extractor. Extract fields from the document below and return JSON.
-
-        IMPORTANT DATE FORMAT RULE:
-        The date field MUST use format YYYY.MM.DD (4-digit year DOT 2-digit month DOT 2-digit day).
-        If document shows "02/17/25" or "February 17, 2025", convert to "2025.02.17".
-
-        Fields to extract:
-        - date: Statement/closing date in YYYY.MM.DD format (REQUIRED)
-        - credit_card: Card type like "Visa", "American Express" (if applicable)
-        - vendor: Company name like "Fidelity", "E*Trade", "Delta Skymiles"
-        - account_number: Account number, whitespace removed, if present
-        - invoice_number: Invoice number, whitespace removed, if present
-
-        Use empty string "" for fields not found. Return ONLY valid JSON, no other text.
-
-        Examples:
-        [Few-shot examples from lib/parkive/examples/]
-
-        Document to Extract from:
-        ---
-        #{text}
-        ---
-      PROMPT
-    end
-  end
+RubyLLM.configure do |config|
+  config.ollama_api_base = "http://localhost:11434/v1"
 end
 ```
 
-## Data Model
-
-### ExtractionResult (Optional Wrapper)
-
-If additional metadata about the extraction is needed:
-
-```ruby
-ExtractionResult = Struct.new(
-  :date, :credit_card, :vendor, :account_number,
-  :invoice_number, :raw_response,
-  keyword_init: true
-) do
-  def complete?
-    date && date != "UNKNOWN" && !date.empty?
-  end
-
-  def to_hash
-    {
-      date: date,
-      credit_card: credit_card,
-      vendor: vendor,
-      account_number: account_number,
-      invoice_number: invoice_number
-    }
-  end
-end
-```
+Configuration is done once (lazy initialization on first `extract` call).
 
 ## Dependencies
 
 | Dependency | Type | Purpose |
 |------------|------|---------|
-| `net/http` | Ruby stdlib | HTTP client for Ollama API |
-| `json` | Ruby stdlib | JSON parsing |
+| `ruby_llm` | Gem | LLM client with schema support |
+| `ruby_llm-schema` | Gem | Schema DSL for defining structured output |
 | `ollama` | CLI tool | Local LLM server (must be installed and running) |
-| `qwen2.5:14b` | Ollama model | Capable LLM for extraction (`ollama pull qwen2.5:14b`) |
+| `qwen2.5:14b` | Ollama model | LLM for extraction (`ollama pull qwen2.5:14b`) |
 
-No external gems required for LLM communication.
+## Performance
 
-## Open Questions & Future Decisions
+Benchmarked against 7 document fixtures:
 
-### Resolved
-
-1. **Model choice** - Use `qwen2.5:14b` for good extraction accuracy
-2. **Retry count** - 3 retries maximum
-3. **Fallback behavior** - Return `nil` to trigger manual input flow
-4. **Fields** - Five fields only: date, credit_card, vendor, account_number, invoice_number
-
-### Deferred
-
-1. **Date format normalization** - FieldExtractor normalizes dates via prompt instructions
-2. **Multi-page PDFs** - Should we limit text length sent to LLM? Current implementation sends all text.
+| Metric | Value |
+|--------|-------|
+| Average extraction time | ~22 seconds |
+| Accuracy (exact match) | 7/7 fixtures |
+| Speedup vs previous approach | ~5x |
 
 ## References
 

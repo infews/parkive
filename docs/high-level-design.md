@@ -96,7 +96,7 @@ To extract the text, this uses the poppler command line tool and the Ruby popple
 
 #### Ollama
 
-To process the text and find the useful text for the renaming, this uses Ollama with the `llama3.1:8b` model via direct HTTP requests to Ollama's API. If Ollama is not present, the Thor command should stop and tell the user to install it and pull the model (`ollama pull llama3.1:8b`) before continuing. If Ollama is present but not running, the Thor command should stop and tell the user to run it before continuing.
+To process the text and find the useful text for the renaming, this uses Ollama with the `qwen2.5:14b` model via RubyLLM's schema-based structured output. RubyLLM connects to Ollama's OpenAI-compatible API and uses a JSON schema to constrain the model's output format at the token level. If Ollama is not present, the Thor command should stop and tell the user to install it and pull the model (`ollama pull qwen2.5:14b`) before continuing. If Ollama is present but not running, the Thor command should stop and tell the user to run it before continuing.
 
 #### Getting Text from the PDF
 
@@ -108,7 +108,7 @@ If there is text in the PDF, it should continue.
 
 This is the heart of the work. We have a PDF, it has a text layer, and now we need to use Ollama to find the desired information from the text.
 
-The script sends a prompt to Ollama using a local http request, with the text, to attempt to extract:
+The script uses RubyLLM with a `DocumentFieldsSchema` to extract structured fields from the text. The schema defines the output format (all string fields), and RubyLLM passes it to Ollama as a JSON schema constraint. The prompt provides extraction instructions and few-shot examples, while the schema handles format enforcement. Fields to extract:
 
 ##### Required Fields
 
@@ -121,26 +121,27 @@ The script sends a prompt to Ollama using a local http request, with the text, t
 - The Account Number (e.g, "123652345")
 - The Invoice Number (e.g, "87865aXYZ")
 
-##### Results JSON
+##### Results
 
-The returned name should come back from Ollama as JSON of the form:
+RubyLLM returns a parsed Hash matching the schema:
 
-```JSON
+```ruby
 {
-  "date": "2026.01.31",
-  "credit_card": "Master Card",
-  "vendor": "Apple",
-  "account_number": "132412352",
-  "invoice_number": "1092317",
+  "date" => "2026.01.31",
+  "credit_card" => "Master Card",
+  "vendor" => "Apple",
+  "account_number" => "132412352",
+  "invoice_number" => "1092317"
 }
 ```
-That is, all fields should be present and should be strings. Any field where there is not a value should be an empty string.
+
+All fields are always present as strings. Missing values are empty strings. The JSON schema constraint eliminates most format errors at the token level.
 
 ##### Error Handling
 
-**Malformed JSON response:** If Ollama returns invalid JSON, retry the request up to 3 times. If all retries fail, fall back to manual input - show the user the raw response and prompt them to enter the filename manually.
+**Failed extraction:** If the response is not a valid Hash, retry up to 3 times. If all retries fail, fall back to manual input.
 
-**Incomplete extraction:** If Ollama returns valid JSON but one or more fields are missing or empty, empty strings are acceptable. The NameSuggestor will omit empty fields from the filename. If the date is missing, the NameSuggestor uses `UNKNOWN` as a placeholder. The user can edit the suggested filename in the confirmation step.
+**Incomplete extraction:** If fields are missing or empty, empty strings are acceptable. The NameSuggestor will omit empty fields from the filename. If the date is missing, the NameSuggestor uses `UNKNOWN` as a placeholder. The user can edit the suggested filename in the confirmation step.
 
 #### Name Suggestor
 

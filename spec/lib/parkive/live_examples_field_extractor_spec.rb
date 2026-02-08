@@ -6,7 +6,7 @@ require "net/http"
 module Parkive
   # These tests hit the real Ollama API and require:
   # - Ollama installed
-  # - llama3.1:8b model pulled
+  # - qwen2.5:14b model pulled
   #
   # The test suite will start/stop Ollama automatically.
   #
@@ -67,7 +67,7 @@ module Parkive
       let(:sample_text) { File.read(File.join(fixtures_path, "amex.txt")) }
 
       it "extracts fields correctly" do
-        result = FieldExtractor.extract(sample_text)
+        result = FieldExtractor.extract(sample_text, verbose: ENV["DEBUG"])
         pp result if ENV["DEBUG"]
 
         expect(result).to be_a(Hash)
@@ -83,7 +83,7 @@ module Parkive
       let(:sample_text) { File.read(File.join(fixtures_path, "etrade.txt")) }
 
       it "extracts fields correctly" do
-        result = FieldExtractor.extract(sample_text)
+        result = FieldExtractor.extract(sample_text, verbose: ENV["DEBUG"])
         pp result if ENV["DEBUG"]
 
         expect(result).to be_a(Hash)
@@ -99,7 +99,7 @@ module Parkive
       let(:sample_text) { File.read(File.join(fixtures_path, "etrade_2.txt")) }
 
       it "extracts fields correctly" do
-        result = FieldExtractor.extract(sample_text)
+        result = FieldExtractor.extract(sample_text, verbose: ENV["DEBUG"])
         pp result if ENV["DEBUG"]
 
         expect(result).to be_a(Hash)
@@ -115,7 +115,7 @@ module Parkive
       let(:sample_text) { File.read(File.join(fixtures_path, "apple.txt")) }
 
       it "extracts fields correctly" do
-        result = FieldExtractor.extract(sample_text)
+        result = FieldExtractor.extract(sample_text, verbose: ENV["DEBUG"])
         pp result if ENV["DEBUG"]
 
         expect(result).to be_a(Hash)
@@ -131,7 +131,7 @@ module Parkive
       let(:sample_text) { File.read(File.join(fixtures_path, "sal.txt")) }
 
       it "extracts fields correctly" do
-        result = FieldExtractor.extract(sample_text)
+        result = FieldExtractor.extract(sample_text, verbose: ENV["DEBUG"])
         pp result if ENV["DEBUG"]
 
         expect(result).to be_a(Hash)
@@ -147,7 +147,7 @@ module Parkive
       let(:sample_text) { File.read(File.join(fixtures_path, "hequity.txt")) }
 
       it "extracts fields correctly" do
-        result = FieldExtractor.extract(sample_text)
+        result = FieldExtractor.extract(sample_text, verbose: ENV["DEBUG"])
         pp result if ENV["DEBUG"]
 
         expect(result).to be_a(Hash)
@@ -163,7 +163,7 @@ module Parkive
       let(:sample_text) { File.read(File.join(fixtures_path, "fidelity.txt")) }
 
       it "extracts fields correctly" do
-        result = FieldExtractor.extract(sample_text)
+        result = FieldExtractor.extract(sample_text, verbose: ENV["DEBUG"])
         pp result if ENV["DEBUG"]
 
         expect(result).to be_a(Hash)

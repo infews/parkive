@@ -5,7 +5,7 @@
 - **REN-CLI-001**: When the user runs the rename command without a directory argument, the system shall display usage help.
 - **REN-CLI-002**: If the specified directory does not exist, then the system shall raise `NoSourceDirectoryError`.
 - **REN-CLI-003**: If Poppler is not installed, then the system shall raise `PopplerNotInstalledError` with installation instructions.
-- **REN-CLI-004**: If Ollama is not installed, then the system shall raise `OllamaNotInstalledError` with installation instructions including `ollama pull llama3.1:8b`.
+- **REN-CLI-004**: If Ollama is not installed, then the system shall raise `OllamaNotInstalledError` with installation instructions including `ollama pull qwen2.5:14b`.
 - **REN-CLI-005**: If Ollama is installed but not running, then the system shall raise `OllamaNotRunningError` with a message to start Ollama.
 - **REN-CLI-006**: When the `--verbose` flag is provided, the system shall pass verbose mode to the Commands layer.
 
@@ -23,13 +23,13 @@
 
 ## LLM Field Extraction
 
-- **REN-LLM-001**: The system shall send extracted text to Ollama using the `llama3.1:8b` model.
-- **REN-LLM-002**: The system shall request JSON output with `date`, `credit_card`, `vendor`, `account_number`, and `invoice_number` fields.
-- **REN-LLM-003**: When Ollama returns valid JSON, the system shall parse all fields.
-- **REN-LLM-004**: If Ollama returns invalid JSON, then the system shall retry up to 3 times.
+- **REN-LLM-001**: The system shall send extracted text to Ollama using the `qwen2.5:14b` model via RubyLLM with the Ollama provider.
+- **REN-LLM-002**: The system shall use a `DocumentFieldsSchema` to constrain output to a JSON object with `date`, `credit_card`, `vendor`, `account_number`, and `invoice_number` string fields.
+- **REN-LLM-003**: When Ollama returns a valid Hash, the system shall normalize and return all fields.
+- **REN-LLM-004**: If Ollama returns a response that is not a valid Hash, then the system shall retry up to 3 times.
 - **REN-LLM-005**: If all retries fail, then the system shall fall back to manual input mode.
-- **REN-LLM-006**: While verbose mode is enabled, the system shall display the raw Ollama response.
-- **REN-LLM-007**: While verbose mode is enabled and retrying, the system shall display each retry attempt.
+- **REN-LLM-006**: While verbose mode is enabled, the system shall display the raw RubyLLM response.
+- **REN-LLM-007**: While verbose mode is enabled and retrying, the system shall display each retry attempt and error message.
 
 ## Name Suggestor
 
