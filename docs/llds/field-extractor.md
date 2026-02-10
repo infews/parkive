@@ -62,7 +62,7 @@ A Hash with the following keys (all values are strings):
 | `date` | Yes | Statement/document date in `YYYY.MM.DD` format | `"2026.01.31"` |
 | `credit_card` | Yes | Card network (not product name) for credit card statements | `"Visa"`, `"American Express"` |
 | `vendor` | Yes | Brand/product name on the statement | `"Delta SkyMiles"`, `"Fidelity"` |
-| `account_number` | Yes | Primary account identifier (no sub-account suffixes) | `"12345"`, `"520-291109"` |
+| `account_number` | Yes | Primary account identifier (no sub-account suffixes) | `"12345"`, `"153-198221"` |
 | `invoice_number` | Yes | Invoice or reference number | `"12950"` |
 
 All fields are always present in the output. Missing values are represented as empty strings `""`.
@@ -138,13 +138,13 @@ Document to extract from:
 
 Examples are loaded from `lib/parkive/examples/` and included in the prompt. Each shows a truncated document (first 200 chars) and the expected output.
 
-| Example | Document Type | Key Fields |
-|---------|---------------|------------|
+| Example | Document Type | Key Fields                                                |
+|---------|---------------|-----------------------------------------------------------|
 | amex | Credit card statement | credit_card: "American Express", vendor: "Delta SkyMiles" |
-| apple | Credit card statement | credit_card: "Apple Card", vendor: "Goldman" |
-| etrade | Brokerage statement | vendor: "E*Trade", account_number: "520-291109" |
-| etrade_2 | Brokerage statement | vendor: "E*Trade", account_number: "520-852519" |
-| sal | Invoice | vendor: "Sals Landscaping", invoice_number: "12950" |
+| apple | Credit card statement | credit_card: "Apple Card", vendor: "Goldman"              |
+| etrade | Brokerage statement | vendor: "E*Trade", account_number: "153-198221"           |
+| etrade_2 | Brokerage statement | vendor: "E*Trade", account_number: "311-639126"           |
+| sal | Invoice | vendor: "Sals Landscaping", invoice_number: "12950"       |
 
 Examples are critical for accuracy. Without them, the model misidentifies fields (e.g., swapping credit_card and vendor) and includes unwanted suffixes in account numbers.
 
